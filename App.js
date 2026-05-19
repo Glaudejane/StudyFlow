@@ -1,18 +1,17 @@
 import React from "react";
 import { SafeAreaView, StyleSheet, StatusBar } from "react-native";
-import TimerScreen from "./screens/TimerScreen"; // Importa a tela do Pomodoro
+import AppNavigator from "./navigation/AppNavigator"; // Importa o navegador de abas (que junta a Home e o Timer)
 
 export default function App() {
-    return (
-        // Definimos o fundo escuro aqui também para não dar "piscada" clara ao abrir
-        <SafeAreaView style={styles.container}>
-            {/* Deixa os ícones da bateria e hora do celular brancos para combinar com o tema escuro */}
-            <StatusBar barStyle="light-content" backgroundColor="#090A1A" />
+  return (
+      <SafeAreaView style={styles.container}>
+          {/* Deixa os ícones da bateria e hora do celular brancos para combinar com o tema escuro */}
+          <StatusBar barStyle="light-content" backgroundColor="#090A1A" />
 
-            {/* Exibe a tela do Pomodoro */}
-            <TimerScreen />
-        </SafeAreaView>
-    );
+          {/* 🚀 A CORREÇÃO ESTÁ AQUI: Agora quem manda no app é o Navegador! */}
+          <AppNavigator />
+      </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
