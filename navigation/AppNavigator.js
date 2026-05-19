@@ -2,6 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import ProfileScreen from "../screens/ProfileScreen";
+import TaskScreen from "../screens/TaskScreen";
 
 // Mudamos a importação para garantir compatibilidade com a SDK do Expo
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
@@ -51,6 +52,13 @@ export default function AppNavigator() {
                             // Ícone de cronômetro do estilo Feather/Lucide (traço fino)
                             <Feather name="clock" color={color} size={size ? size : 20} />
                         ),
+                    }}
+                />
+                <Tab.Screen
+                    name="Tarefas"
+                    component={TaskScreen}
+                    options={{
+                        tabBarIcon: ({ color }) => <Feather name="check-square" size={24} color={color} />,
                     }}
                 />
                 <Tab.Screen
