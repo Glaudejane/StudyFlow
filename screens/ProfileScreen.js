@@ -24,7 +24,7 @@ export default function ProfileScreen() {
 
                         <View style={styles.userInfoText}>
                             <Text style={styles.userName}>Glaudejane</Text>
-                            <Text style={styles.userBio}>Estudante Focada • Premium ✨</Text>{" "}
+                            <Text style={styles.userBio}>Estudante Focada • Premium ✨</Text>
                         </View>
                     </View>
 
