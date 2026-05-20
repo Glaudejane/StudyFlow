@@ -1,8 +1,39 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Image } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native"; // Importação essencial para atualizar ao entrar na tela
 
 export default function ProfileScreen() {
+    const isFocused = useIsFocused(); // Monitora se esta tela está ativa
+
+    // ---- ESTADOS DO ESTUDANTE ----
+    const [level, setLevel] = useState(1);
+    const [xp, setXp] = useState(0);
+
+    // Chaves secretas correspondentes às da HomeScreen
+    const XP_KEY = "@studyflow:xp";
+    const LEVEL_KEY = "@studyflow:level";
+
+    // Recarrega os dados toda vez que a tela de Perfil ganhar o foco
+    useEffect(() => {
+        if (isFocused) {
+            loadUserData();
+        }
+    }, [isFocused]);
+
+    const loadUserData = async () => {
+        try {
+            const savedXp = await AsyncStorage.getItem(XP_KEY);
+            const savedLevel = await AsyncStorage.getItem(LEVEL_KEY);
+
+            if (savedXp !== null) setXp(parseInt(savedXp));
+            if (savedLevel !== null) setLevel(parseInt(savedLevel));
+        } catch (error) {
+            console.log("Erro ao carregar dados no Perfil:", error);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -17,8 +48,9 @@ export default function ProfileScreen() {
                                 }}
                                 style={styles.avatar}
                             />
+                            {/* DISTINTIVO DE NÍVEL DINÂMICO 🎉 */}
                             <View style={styles.levelBadge}>
-                                <Text style={styles.levelText}>12</Text>
+                                <Text style={styles.levelText}>{level}</Text>
                             </View>
                         </View>
 
@@ -28,7 +60,7 @@ export default function ProfileScreen() {
                         </View>
                     </View>
 
-                    {/* Sua Mensagem Diária mantida e bem posicionada embaixo! */}
+                    {/* Sua Mensagem Diária */}
                     <View style={styles.quoteCard}>
                         <Text style={styles.quoteText}>
                             "Pequenos passos todos os dias levam a grandes conquistas." ⭐
@@ -49,9 +81,9 @@ export default function ProfileScreen() {
                         <Text style={styles.statLabel}>Units Murphy</Text>
                     </View>
                     <View style={styles.statCard}>
-                        <MaterialCommunityIcons name="fire" size={24} color="#E17055" />
-                        <Text style={styles.statNumber}>15</Text>
-                        <Text style={styles.statLabel}>Dias Seguidos</Text>
+                        <MaterialCommunityIcons name="star" size={24} color="#FFD700" />
+                        <Text style={styles.statNumber}>{xp}</Text>
+                        <Text style={styles.statLabel}>XP TOTAL</Text>
                     </View>
                 </View>
 
@@ -119,23 +151,20 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingTop: 40,
     },
-    // Modificado: Removemos o alignItem: 'center'
     profileHeader: {
         marginBottom: 32,
-        marginTop: 24, // Um pouco mais de espaço no topo
+        marginTop: 24,
     },
-    // Novo estilo: Organiza a foto e o texto lado a lado (Row)
     headerInfoContainer: {
         flexDirection: "row",
-        alignItems: "center", // Centraliza os elementos na vertical dentro da linha
+        alignItems: "center",
     },
-    // Modificado: Ajustado o margin
     avatarContainer: {
         position: "relative",
-        marginRight: 20, // Espaço entre a foto e o texto
+        marginRight: 20,
     },
     avatar: {
-        width: 90, // Levemente menor para equilibrar com o texto lateral
+        width: 90,
         height: 90,
         borderRadius: 45,
         borderWidth: 3,
@@ -143,7 +172,7 @@ const styles = StyleSheet.create({
     },
     levelBadge: {
         position: "absolute",
-        bottom: -5, // Ajustado para a nova imagem menor
+        bottom: -5,
         right: -5,
         backgroundColor: "#6C5CE7",
         width: 32,
@@ -159,24 +188,21 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 14,
     },
-    // Novo estilo: Container para os textos laterais
     userInfoText: {
-        flex: 1, // Ocupa o espaço restante na linha
+        flex: 1,
         justifyContent: "center",
     },
-    // Modificado: Alinhamento para a esquerda e tamanho menor
     userName: {
         color: "#FFF",
         fontSize: 22,
         fontWeight: "bold",
         marginBottom: 2,
     },
-    // Modificado: Alinhamento para a esquerda
     userBio: {
         color: "#8E8EA9",
-        fontSize: 12, // Diminuímos de 14 para 12 para caber perfeitamente
+        fontSize: 12,
         marginTop: 4,
-        flexWrap: "wrap", // Se mesmo assim for grande, ele quebra a linha em vez de sumir da tela
+        flexWrap: "wrap",
     },
     quoteCard: {
         backgroundColor: "#15162E",
@@ -186,13 +212,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#221F4D",
         width: "100%",
-    },
-    // Novo estilo: Título do Nível
-    userLevelTitle: {
-        color: "#6C5CE7",
-        fontSize: 12,
-        fontWeight: "600",
-        textTransform: "uppercase",
     },
     quoteText: {
         color: "#8E8EA9",
