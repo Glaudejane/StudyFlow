@@ -1,12 +1,112 @@
-import React from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
+    // ---- ESTADOS DO CRONÔMETRO ----
+    const FOCUS_TIME_MINUTES = 25; // Bloco padrão de Pomodoro (25 minutos)
+    const [secondsLeft, setSecondsLeft] = useState(FOCUS_TIME_MINUTES * 60);
+    const [isActive, setIsActive] = useState(false);
+
+    // ---- ESTADOS DE PROGRESSO DO ESTUDANTE ----
+    const [xp, setXp] = useState(0);
+    const [level, setLevel] = useState(1);
+    const [streak, setStreak] = useState(1); // Dias em sequência
+
+    // Chaves secretas para salvar no celular
+    const XP_KEY = "@studyflow:xp";
+    const LEVEL_KEY = "@studyflow:level";
+
+    // 1. CARREGAR DADOS DO BANCO ASSIM QUE O APP ABRE
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
+    // 2. CORAÇÃO DO CRONÔMETRO (O CONTADOR REGRESSIVO)
+    useEffect(() => {
+        let interval = null;
+
+        if (isActive && secondsLeft > 0) {
+            interval = setInterval(() => {
+                setSecondsLeft((seconds) => seconds - 1);
+            }, 1000);
+        } else if (secondsLeft === 0 && isActive) {
+            // O CRONÔMETRO ZEROU! Missão Cumprida! 🎉
+            clearInterval(interval);
+            setIsActive(false);
+            handleFocusCompleted();
+        }
+
+        return () => clearInterval(interval);
+    }, [isActive, secondsLeft]);
+
+    // Função para ler o progresso atual salvo no celular
+    const loadUserData = async () => {
+        try {
+            const savedXp = await AsyncStorage.getItem(XP_KEY);
+            const savedLevel = await AsyncStorage.getItem(LEVEL_KEY);
+
+            if (savedXp !== null) setXp(parseInt(savedXp));
+            if (savedLevel !== null) setLevel(parseInt(savedLevel));
+        } catch (error) {
+            console.log("Erro ao carregar dados de foco:", error);
+        }
+    };
+
+    // Função executada quando você termina com sucesso o tempo de foco
+    const handleFocusCompleted = async () => {
+        try {
+            const newXp = xp + 100; // Ganha 100 XP por bloco de foco!
+            let newLevel = level;
+
+            // Lógica Pedagógica de Nível: A cada 500 XP, o estudante sobe de nível!
+            if (newXp >= level * 500) {
+                newLevel = level + 1;
+                Alert.alert("🎉 PARABÉNS!", `Você evoluiu para o Nível ${newLevel}! Continue focada! ✨`);
+            } else {
+                Alert.alert("🔥 Bloco Concluído!", "Muito bem! Você ganhou +100 XP pelo seu foco de hoje.");
+            }
+
+            // Atualiza a tela
+            setXp(newXp);
+            setLevel(newLevel);
+            setSecondsLeft(FOCUS_TIME_MINUTES * 60); // Reseta o cronômetro
+
+            // Grava os novos dados com segurança no celular
+            await AsyncStorage.setItem(XP_KEY, newXp.toString());
+            await AsyncStorage.setItem(LEVEL_KEY, newLevel.toString());
+        } catch (error) {
+            console.log("Erro ao salvar progresso:", error);
+        }
+    };
+
+    // Alternar entre iniciar e pausar o cronômetro
+    const toggleTimer = () => {
+        setIsActive(!isActive);
+    };
+
+    // Resetar o foco manual se precisar
+    const resetTimer = () => {
+        setIsActive(false);
+        setSecondsLeft(FOCUS_TIME_MINUTES * 60);
+    };
+
+    // Formatação visual do tempo (ex: converte 1500 segundos em "25:00")
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    };
+
+    // Cálculo da porcentagem do círculo de progresso
+    const totalSeconds = FOCUS_TIME_MINUTES * 60;
+    const progressPercentage = Math.round(((totalSeconds - secondsLeft) / totalSeconds) * 100);
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {/* Cabeçalho / Header */}
+                {/* Cabeçalho */}
                 <View style={styles.header}>
                     <View>
                         <Text style={styles.welcomeText}>Olá, Glaudejane! 👋</Text>
@@ -17,19 +117,31 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Card Foco de Hoje */}
+                {/* Card Foco Inteligente e Interativo */}
                 <View style={styles.focusCard}>
                     <View style={styles.focusInfo}>
-                        <Text style={styles.focusTitle}>Foco de hoje</Text>
-                        <Text style={styles.focusMinutes}>
-                            15 <Text style={styles.focusTotal}>/ 20 min</Text>
-                        </Text>
-                        <Text style={styles.focusSubtitle}>Tempo de foco</Text>
+                        <Text style={styles.focusTitle}>Bloco de Foco Atual</Text>
+                        <Text style={styles.focusMinutes}>{formatTime(secondsLeft)}</Text>
+
+                        {/* Botões de Controle */}
+                        <View style={styles.controlButtonsContainer}>
+                            <TouchableOpacity style={styles.controlButton} onPress={toggleTimer}>
+                                <Feather name={isActive ? "pause" : "play"} size={18} color="#FFF" />
+                                <Text style={styles.controlButtonText}>{isActive ? "Pausar" : "Iniciar"}</Text>
+                            </TouchableOpacity>
+
+                            {isActive && (
+                                <TouchableOpacity style={[styles.controlButton, styles.resetBtn]} onPress={resetTimer}>
+                                    <Feather name="refresh-cw" size={14} color="#8E8EA9" />
+                                </TouchableOpacity>
+                            )}
+                        </View>
                     </View>
-                    {/* Representação do Círculo de Progresso */}
+
+                    {/* Círculo de Progresso Dinâmico */}
                     <View style={styles.progressCircleContainer}>
                         <View style={styles.progressCircle}>
-                            <Text style={styles.progressPercentage}>75%</Text>
+                            <Text style={styles.progressPercentage}>{progressPercentage}%</Text>
                         </View>
                     </View>
                 </View>
@@ -42,34 +154,30 @@ export default function HomeScreen() {
 
                 {/* Seção Seu Progresso */}
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Seu progresso</Text>
-                    <TouchableOpacity>
-                        <Text style={styles.seeAllText}>Ver tudo</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.sectionTitle}>Seu progresso em tempo real</Text>
                 </View>
 
-                {/* Grid de Status/Progresso (3 colunas) */}
+                {/* Grid de Status/Progresso Conectado com o Banco */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statBox}>
                         <Text style={styles.statIcon}>🔥</Text>
-                        <Text style={styles.statValue}>12</Text>
+                        <Text style={styles.statValue}>{streak}</Text>
                         <Text style={styles.statLabel}>Dias em{"\n"}sequência</Text>
                     </View>
 
                     <View style={styles.statBox}>
                         <Text style={styles.statIcon}>⭐</Text>
-                        <Text style={styles.statValue}>850</Text>
+                        <Text style={styles.statValue}>{xp}</Text>
                         <Text style={styles.statLabel}>XP{"\n"}acumulado</Text>
                     </View>
 
                     <View style={styles.statBox}>
                         <Text style={styles.statIcon}>🏆</Text>
-                        <Text style={styles.statValue}>Nível 7</Text>
-                        <Text style={styles.statLabel}>Estudante{"\n"}Focado</Text>
+                        <Text style={styles.statValue}>Nível {level}</Text>
+                        <Text style={styles.statLabel}>Estudante{"\n"}Focada</Text>
                     </View>
                 </View>
 
-                {/* Espaço extra no final para o scroll não cortar embaixo por causa da barra */}
                 <View style={{ height: 30 }} />
             </ScrollView>
         </SafeAreaView>
@@ -79,7 +187,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#090A1A", // Fundo ultra escuro do StudyFlow
+        backgroundColor: "#090A1A",
     },
     scrollContent: {
         paddingHorizontal: 24,
@@ -127,29 +235,45 @@ const styles = StyleSheet.create({
     },
     focusMinutes: {
         color: "#FFFFFF",
-        fontSize: 28,
+        fontSize: 34, // Aumentei um pouco para dar mais destaque ao tempo correndo
         fontWeight: "bold",
-        marginVertical: 6,
+        marginVertical: 4,
+        fontVariant: ["tabular-nums"], // Evita que os números fiquem sambando na tela
     },
-    focusTotal: {
-        color: "#8E8EA9",
-        fontSize: 16,
-        fontWeight: "normal",
+    controlButtonsContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 8,
+        gap: 8,
     },
-    focusSubtitle: {
-        color: "#8E8EA9",
-        fontSize: 12,
+    controlButton: {
+        backgroundColor: "#6C5CE7",
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        borderRadius: 10,
+        gap: 6,
+    },
+    controlButtonText: {
+        color: "#FFF",
+        fontSize: 13,
+        fontWeight: "bold",
+    },
+    resetBtn: {
+        backgroundColor: "#221F4D",
+        paddingHorizontal: 10,
     },
     progressCircleContainer: {
         justifyContent: "center",
         alignItems: "center",
     },
     progressCircle: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
+        width: 76,
+        height: 76,
+        borderRadius: 38,
         borderWidth: 4,
-        borderColor: "#6C5CE7", // Roxo neon
+        borderColor: "#6C5CE7",
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#221F4D",
@@ -160,7 +284,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     quoteCard: {
-        backgroundColor: "#221F4D", // Roxo mais azulado destacado
+        backgroundColor: "#221F4D",
         borderRadius: 16,
         padding: 16,
         flexDirection: "row",
@@ -190,11 +314,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
         letterSpacing: 0.5,
-    },
-    seeAllText: {
-        color: "#6C5CE7",
-        fontSize: 13,
-        fontWeight: "500",
     },
     statsContainer: {
         flexDirection: "row",
