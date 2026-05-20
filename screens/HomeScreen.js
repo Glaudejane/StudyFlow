@@ -2,26 +2,31 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native"; // Importação correta do foco
 
 export default function HomeScreen() {
+    const isFocused = useIsFocused(); // Monitor de foco no topo do componente
+
     // ---- ESTADOS DO CRONÔMETRO ----
-    const FOCUS_TIME_MINUTES = 25; // Bloco padrão de Pomodoro (25 minutos)
+    const FOCUS_TIME_MINUTES = 25;
     const [secondsLeft, setSecondsLeft] = useState(FOCUS_TIME_MINUTES * 60);
     const [isActive, setIsActive] = useState(false);
 
     // ---- ESTADOS DE PROGRESSO DO ESTUDANTE ----
     const [xp, setXp] = useState(0);
     const [level, setLevel] = useState(1);
-    const [streak, setStreak] = useState(1); // Dias em sequência
+    const [streak, setStreak] = useState(1);
 
-    // Chaves secretas para salvar no celular
+    // Chaves secretas do banco local
     const XP_KEY = "@studyflow:xp";
     const LEVEL_KEY = "@studyflow:level";
 
-    // 1. CARREGAR DADOS DO BANCO ASSIM QUE O APP ABRE
+    // 1. CARREGAR DADOS DO BANCO SEMPRE QUE A HOME FICAR VISÍVEL 🎉
     useEffect(() => {
-        loadUserData();
-    }, []);
+        if (isFocused) {
+            loadUserData();
+        }
+    }, [isFocused]);
 
     // 2. CORAÇÃO DO CRONÔMETRO (O CONTADOR REGRESSIVO)
     useEffect(() => {
@@ -32,7 +37,6 @@ export default function HomeScreen() {
                 setSecondsLeft((seconds) => seconds - 1);
             }, 1000);
         } else if (secondsLeft === 0 && isActive) {
-            // O CRONÔMETRO ZEROU! Missão Cumprida! 🎉
             clearInterval(interval);
             setIsActive(false);
             handleFocusCompleted();
@@ -54,13 +58,12 @@ export default function HomeScreen() {
         }
     };
 
-    // Função executada quando você termina com sucesso o tempo de foco
+    // Função executada quando o cronômetro zera com sucesso
     const handleFocusCompleted = async () => {
         try {
-            const newXp = xp + 100; // Ganha 100 XP por bloco de foco!
+            const newXp = xp + 100;
             let newLevel = level;
 
-            // Lógica Pedagógica de Nível: A cada 500 XP, o estudante sobe de nível!
             if (newXp >= level * 500) {
                 newLevel = level + 1;
                 Alert.alert("🎉 PARABÉNS!", `Você evoluiu para o Nível ${newLevel}! Continue focada! ✨`);
@@ -68,12 +71,10 @@ export default function HomeScreen() {
                 Alert.alert("🔥 Bloco Concluído!", "Muito bem! Você ganhou +100 XP pelo seu foco de hoje.");
             }
 
-            // Atualiza a tela
             setXp(newXp);
             setLevel(newLevel);
-            setSecondsLeft(FOCUS_TIME_MINUTES * 60); // Reseta o cronômetro
+            setSecondsLeft(FOCUS_TIME_MINUTES * 60);
 
-            // Grava os novos dados com segurança no celular
             await AsyncStorage.setItem(XP_KEY, newXp.toString());
             await AsyncStorage.setItem(LEVEL_KEY, newLevel.toString());
         } catch (error) {
@@ -81,25 +82,21 @@ export default function HomeScreen() {
         }
     };
 
-    // Alternar entre iniciar e pausar o cronômetro
     const toggleTimer = () => {
         setIsActive(!isActive);
     };
 
-    // Resetar o foco manual se precisar
     const resetTimer = () => {
         setIsActive(false);
         setSecondsLeft(FOCUS_TIME_MINUTES * 60);
     };
 
-    // Formatação visual do tempo (ex: converte 1500 segundos em "25:00")
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
 
-    // Cálculo da porcentagem do círculo de progresso
     const totalSeconds = FOCUS_TIME_MINUTES * 60;
     const progressPercentage = Math.round(((totalSeconds - secondsLeft) / totalSeconds) * 100);
 
@@ -117,13 +114,12 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Card Foco Inteligente e Interativo */}
+                {/* Card Foco Inteligente */}
                 <View style={styles.focusCard}>
                     <View style={styles.focusInfo}>
                         <Text style={styles.focusTitle}>Bloco de Foco Atual</Text>
                         <Text style={styles.focusMinutes}>{formatTime(secondsLeft)}</Text>
 
-                        {/* Botões de Controle */}
                         <View style={styles.controlButtonsContainer}>
                             <TouchableOpacity style={styles.controlButton} onPress={toggleTimer}>
                                 <Feather name={isActive ? "pause" : "play"} size={18} color="#FFF" />
@@ -138,7 +134,6 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    {/* Círculo de Progresso Dinâmico */}
                     <View style={styles.progressCircleContainer}>
                         <View style={styles.progressCircle}>
                             <Text style={styles.progressPercentage}>{progressPercentage}%</Text>
@@ -157,7 +152,7 @@ export default function HomeScreen() {
                     <Text style={styles.sectionTitle}>Seu progresso em tempo real</Text>
                 </View>
 
-                {/* Grid de Status/Progresso Conectado com o Banco */}
+                {/* Grid de Status Conectado */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statBox}>
                         <Text style={styles.statIcon}>🔥</Text>
@@ -235,10 +230,10 @@ const styles = StyleSheet.create({
     },
     focusMinutes: {
         color: "#FFFFFF",
-        fontSize: 34, // Aumentei um pouco para dar mais destaque ao tempo correndo
+        fontSize: 34,
         fontWeight: "bold",
         marginVertical: 4,
-        fontVariant: ["tabular-nums"], // Evita que os números fiquem sambando na tela
+        fontVariant: ["tabular-nums"],
     },
     controlButtonsContainer: {
         flexDirection: "row",

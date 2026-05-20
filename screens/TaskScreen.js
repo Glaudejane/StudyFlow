@@ -10,40 +10,40 @@ import {
     KeyboardAvoidingView,
     Platform,
     ActivityIndicator,
+    Alert,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-// Importamos o caderno secreto do celular!
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function TaskScreen() {
     const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState("");
-    const [loading, setLoading] = useState(true); // Para mostrar um carregamento bonito
+    const [loading, setLoading] = useState(true);
 
-    // CHAVE SECRETA: É o nome da "gaveta" onde vamos guardar as tarefas no celular
+    // Chaves secretas do banco local
     const ASYNC_STORAGE_KEY = "@studyflow:tasks";
+    const XP_KEY = "@studyflow:xp";
+    const LEVEL_KEY = "@studyflow:level";
 
-    // 1. CARREGAR DADOS: Roda automaticamente assim que a tela abre
+    // 1. CARREGAR DADOS AO ABRIR A TELA
     useEffect(() => {
         loadTasks();
     }, []);
 
-    // 2. SALVAR DADOS: Roda automaticamente toda vez que a lista de tarefas mudar
+    // 2. SALVAR AS TAREFAS AUTOMATICAMENTE QUANDO ELAS MUDAREM
     useEffect(() => {
         if (!loading) {
-            // Só salva se já tiver terminado de carregar o que estava lá
             saveTasks(tasks);
         }
     }, [tasks, loading]);
 
-    // Função para ler as tarefas gravadas no celular
+    // Carrega as tarefas salvas
     const loadTasks = async () => {
         try {
             const savedTasks = await AsyncStorage.getItem(ASYNC_STORAGE_KEY);
             if (savedTasks !== null) {
                 setTasks(JSON.parse(savedTasks));
             } else {
-                // Se o aplicativo for aberto pela primeira vez, carrega suas metas padrão
                 const defaultTasks = [
                     { id: "1", text: "📘 Murphy: Unit 1 & 2 (Present Continuous)", completed: true },
                     { id: "2", text: "🤖 Praticar Prompts de IA em inglês", completed: false },
@@ -55,11 +55,10 @@ export default function TaskScreen() {
         } catch (error) {
             console.log("Erro ao carregar as metas:", error);
         } finally {
-            setLoading(false); // Desliga a rodinha de carregamento
+            setLoading(false);
         }
     };
 
-    // Função para salvar a lista atual na memória
     const saveTasks = async (tasksToSave) => {
         try {
             await AsyncStorage.setItem(ASYNC_STORAGE_KEY, JSON.stringify(tasksToSave));
@@ -68,7 +67,39 @@ export default function TaskScreen() {
         }
     };
 
-    // Função para adicionar uma nova tarefa
+    // FUNÇÃO COMPLEMENTAR: Atualiza e calcula o XP/Nível do usuário no banco
+    const updateTaskXP = async (isGainingXP) => {
+        try {
+            // Pega o progresso atual do celular (ou começa do zero se não achar)
+            const currentXpSaved = await AsyncStorage.getItem(XP_KEY);
+            const currentLevelSaved = await AsyncStorage.getItem(LEVEL_KEY);
+
+            let currentXp = currentXpSaved ? parseInt(currentXpSaved) : 0;
+            let currentLevel = currentLevelSaved ? parseInt(currentLevelSaved) : 1;
+
+            const XP_BONUS = 25; // Pontos por tarefa feita
+            let newXp = isGainingXP ? currentXp + XP_BONUS : Math.max(0, currentXp - XP_BONUS);
+            let newLevel = currentLevel;
+
+            // Lógica Pedagógica de Evolução (sobe a cada level * 500)
+            if (isGainingXP && newXp >= currentLevel * 500) {
+                newLevel = currentLevel + 1;
+                Alert.alert("⭐ EVOLUÇÃO!", `Meta cumprida e você subiu para o Nível ${newLevel}! Fantástico! 🚀`);
+            }
+
+            // Se desmarcou a tarefa e o XP caiu abaixo do nível anterior (segurança)
+            if (!isGainingXP && currentLevel > 1 && newXp < (currentLevel - 1) * 500) {
+                newLevel = currentLevel - 1;
+            }
+
+            // Grava os novos valores recalculados
+            await AsyncStorage.setItem(XP_KEY, newXp.toString());
+            await AsyncStorage.setItem(LEVEL_KEY, newLevel.toString());
+        } catch (error) {
+            console.log("Erro ao atualizar o XP da tarefa:", error);
+        }
+    };
+
     const addTask = () => {
         if (newTask.trim() === "") return;
 
@@ -82,12 +113,23 @@ export default function TaskScreen() {
         setNewTask("");
     };
 
-    // Função para marcar/desmarcar a tarefa
+    // MODIFICADO: Função inteligente que altera o estado e atualiza o XP
     const toggleTask = (id) => {
-        setTasks(tasks.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task)));
+        const updatedTasks = tasks.map((task) => {
+            if (task.id === id) {
+                const nextCompletedState = !task.completed;
+
+                // Dispara a nossa função de pontuação: true ganha, false perde
+                updateTaskXP(nextCompletedState);
+
+                return { ...task, completed: nextCompletedState };
+            }
+            return task;
+        });
+
+        setTasks(updatedTasks);
     };
 
-    // Função para deletar uma tarefa
     const deleteTask = (id) => {
         setTasks(tasks.filter((task) => task.id !== id));
     };
@@ -99,7 +141,6 @@ export default function TaskScreen() {
                     <Text style={styles.headerTitle}>Minhas Metas</Text>
                     <Text style={styles.headerSubtitle}>Organize seus blocos de foco diários</Text>
 
-                    {/* Campo de Entrada para Nova Tarefa */}
                     <View style={styles.inputContainer}>
                         <TextInput
                             style={styles.input}
@@ -113,11 +154,9 @@ export default function TaskScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Se estiver carregando do banco, mostra uma rodinha de loading */}
                     {loading ? (
                         <ActivityIndicator size="large" color="#6C5CE7" style={{ marginTop: 40 }} />
                     ) : (
-                        /* Lista de Tarefas */
                         <FlatList
                             data={tasks}
                             keyExtractor={(item) => item.id}
