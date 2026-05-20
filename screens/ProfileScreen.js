@@ -8,21 +8,27 @@ export default function ProfileScreen() {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {/* Cabeçalho de Perfil */}
                 <View style={styles.profileHeader}>
-                    <View style={styles.avatarContainer}>
-                        <Image
-                            source={{
-                                uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80",
-                            }}
-                            style={styles.avatar}
-                        />
-                        <View style={styles.levelBadge}>
-                            <Text style={styles.levelText}>12</Text>
+                    {/* Foto e Informações de Lado */}
+                    <View style={styles.headerInfoContainer}>
+                        <View style={styles.avatarContainer}>
+                            <Image
+                                source={{
+                                    uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80",
+                                }}
+                                style={styles.avatar}
+                            />
+                            <View style={styles.levelBadge}>
+                                <Text style={styles.levelText}>12</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.userInfoText}>
+                            <Text style={styles.userName}>Glaudejane</Text>
+                            <Text style={styles.userBio}>Estudante Focada • Premium ✨</Text>{" "}
                         </View>
                     </View>
-                    <Text style={styles.userName}>Glaudejane</Text>
-                    <Text style={styles.userBio}>Estudante Focada - StudyFlow Premium ✨</Text>
 
-                    {/* Frase Motivacional */}
+                    {/* Sua Mensagem Diária mantida e bem posicionada embaixo! */}
                     <View style={styles.quoteCard}>
                         <Text style={styles.quoteText}>
                             "Pequenos passos todos os dias levam a grandes conquistas." ⭐
@@ -113,29 +119,36 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingTop: 40,
     },
+    // Modificado: Removemos o alignItem: 'center'
     profileHeader: {
-        alignItems: "center",
         marginBottom: 32,
+        marginTop: 24, // Um pouco mais de espaço no topo
     },
+    // Novo estilo: Organiza a foto e o texto lado a lado (Row)
+    headerInfoContainer: {
+        flexDirection: "row",
+        alignItems: "center", // Centraliza os elementos na vertical dentro da linha
+    },
+    // Modificado: Ajustado o margin
     avatarContainer: {
         position: "relative",
-        marginBottom: 16,
+        marginRight: 20, // Espaço entre a foto e o texto
     },
     avatar: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+        width: 90, // Levemente menor para equilibrar com o texto lateral
+        height: 90,
+        borderRadius: 45,
         borderWidth: 3,
         borderColor: "#6C5CE7",
     },
     levelBadge: {
         position: "absolute",
-        bottom: 0,
-        right: 0,
+        bottom: -5, // Ajustado para a nova imagem menor
+        right: -5,
         backgroundColor: "#6C5CE7",
-        width: 30,
-        height: 30,
-        borderRadius: 15,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
         justifyContent: "center",
         alignItems: "center",
         borderWidth: 2,
@@ -146,15 +159,24 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 14,
     },
+    // Novo estilo: Container para os textos laterais
+    userInfoText: {
+        flex: 1, // Ocupa o espaço restante na linha
+        justifyContent: "center",
+    },
+    // Modificado: Alinhamento para a esquerda e tamanho menor
     userName: {
         color: "#FFF",
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: "bold",
+        marginBottom: 2,
     },
+    // Modificado: Alinhamento para a esquerda
     userBio: {
         color: "#8E8EA9",
-        fontSize: 14,
+        fontSize: 12, // Diminuímos de 14 para 12 para caber perfeitamente
         marginTop: 4,
+        flexWrap: "wrap", // Se mesmo assim for grande, ele quebra a linha em vez de sumir da tela
     },
     quoteCard: {
         backgroundColor: "#15162E",
@@ -164,6 +186,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#221F4D",
         width: "100%",
+    },
+    // Novo estilo: Título do Nível
+    userLevelTitle: {
+        color: "#6C5CE7",
+        fontSize: 12,
+        fontWeight: "600",
+        textTransform: "uppercase",
     },
     quoteText: {
         color: "#8E8EA9",
