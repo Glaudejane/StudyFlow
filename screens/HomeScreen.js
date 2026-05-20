@@ -2,26 +2,27 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useIsFocused } from "@react-navigation/native"; // Importação correta do foco
+import { useIsFocused } from "@react-navigation/native";
+import { Audio } from "expo-av"; // 🎵 IMPORTANTE: Importamos o motor de áudio!
 
 export default function HomeScreen() {
-    const isFocused = useIsFocused(); // Monitor de foco no topo do componente
+    const isFocused = useIsFocused();
 
     // ---- ESTADOS DO CRONÔMETRO ----
-    const FOCUS_TIME_MINUTES = 25;
+    const FOCUS_TIME_MINUTES = 25; // Duração do bloco de foco em minutos
     const [secondsLeft, setSecondsLeft] = useState(FOCUS_TIME_MINUTES * 60);
     const [isActive, setIsActive] = useState(false);
+    const [sound, setSound] = useState(null); // 🎵 Estado para controlar o arquivo de som
 
     // ---- ESTADOS DE PROGRESSO DO ESTUDANTE ----
     const [xp, setXp] = useState(0);
     const [level, setLevel] = useState(1);
     const [streak, setStreak] = useState(1);
 
-    // Chaves secretas do banco local
     const XP_KEY = "@studyflow:xp";
     const LEVEL_KEY = "@studyflow:level";
 
-    // 1. CARREGAR DADOS DO BANCO SEMPRE QUE A HOME FICAR VISÍVEL 🎉
+    // 1. CARREGAR DADOS DO BANCO SEMPRE QUE A HOME FICAR VISÍVEL
     useEffect(() => {
         if (isFocused) {
             loadUserData();
@@ -45,7 +46,29 @@ export default function HomeScreen() {
         return () => clearInterval(interval);
     }, [isActive, secondsLeft]);
 
-    // Função para ler o progresso atual salvo no celular
+    // 🎵 3. LIMPEZA DE MEMÓRIA: Descarrega o som quando a tela fechar (boa prática!)
+    useEffect(() => {
+        return sound
+            ? () => {
+                  sound.unloadAsync();
+              }
+            : undefined;
+    }, [sound]);
+
+    // 🎵 4. FUNÇÃO MÁGICA: Carrega e toca o alarme
+    const playAlarmSound = async () => {
+        try {
+            // Usando um som de sininho suave direto da internet para testarmos
+            const { sound: playbackObject } = await Audio.Sound.createAsync(
+                require("../assets/alarm.mp3"), // Substitua pelo caminho do seu arquivo de som local ou URL
+            );
+            setSound(playbackObject);
+            await playbackObject.playAsync(); // Toca o som!
+        } catch (error) {
+            console.log("Erro ao tocar o som:", error);
+        }
+    };
+
     const loadUserData = async () => {
         try {
             const savedXp = await AsyncStorage.getItem(XP_KEY);
@@ -60,6 +83,9 @@ export default function HomeScreen() {
 
     // Função executada quando o cronômetro zera com sucesso
     const handleFocusCompleted = async () => {
+        // 🎵 Dispara o som do alarme imediatamente quando zerar!
+        playAlarmSound();
+
         try {
             const newXp = xp + 100;
             let newLevel = level;
@@ -152,7 +178,7 @@ export default function HomeScreen() {
                     <Text style={styles.sectionTitle}>Seu progresso em tempo real</Text>
                 </View>
 
-                {/* Grid de Status Conectado */}
+                {/* Grid de Status */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statBox}>
                         <Text style={styles.statIcon}>🔥</Text>
@@ -179,36 +205,14 @@ export default function HomeScreen() {
     );
 }
 
+// ... Os estilos (StyleSheet) continuam exatamente iguais ao código anterior!
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#090A1A",
-    },
-    scrollContent: {
-        paddingHorizontal: 24,
-        paddingTop: 20,
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 30,
-    },
-    welcomeText: {
-        color: "#FFFFFF",
-        fontSize: 22,
-        fontWeight: "bold",
-    },
-    subWelcomeText: {
-        color: "#8E8EA9",
-        fontSize: 14,
-        marginTop: 4,
-    },
-    notificationButton: {
-        backgroundColor: "#15162E",
-        padding: 10,
-        borderRadius: 12,
-    },
+    container: { flex: 1, backgroundColor: "#090A1A" },
+    scrollContent: { paddingHorizontal: 24, paddingTop: 20 },
+    header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 30 },
+    welcomeText: { color: "#FFFFFF", fontSize: 22, fontWeight: "bold" },
+    subWelcomeText: { color: "#8E8EA9", fontSize: 14, marginTop: 4 },
+    notificationButton: { backgroundColor: "#15162E", padding: 10, borderRadius: 12 },
     focusCard: {
         backgroundColor: "#15162E",
         borderRadius: 20,
@@ -220,14 +224,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#221F4D",
     },
-    focusInfo: {
-        flex: 1,
-    },
-    focusTitle: {
-        color: "#8E8EA9",
-        fontSize: 13,
-        fontWeight: "500",
-    },
+    focusInfo: { flex: 1 },
+    focusTitle: { color: "#8E8EA9", fontSize: 13, fontWeight: "500" },
     focusMinutes: {
         color: "#FFFFFF",
         fontSize: 34,
@@ -235,12 +233,7 @@ const styles = StyleSheet.create({
         marginVertical: 4,
         fontVariant: ["tabular-nums"],
     },
-    controlButtonsContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 8,
-        gap: 8,
-    },
+    controlButtonsContainer: { flexDirection: "row", alignItems: "center", marginTop: 8, gap: 8 },
     controlButton: {
         backgroundColor: "#6C5CE7",
         flexDirection: "row",
@@ -250,19 +243,9 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         gap: 6,
     },
-    controlButtonText: {
-        color: "#FFF",
-        fontSize: 13,
-        fontWeight: "bold",
-    },
-    resetBtn: {
-        backgroundColor: "#221F4D",
-        paddingHorizontal: 10,
-    },
-    progressCircleContainer: {
-        justifyContent: "center",
-        alignItems: "center",
-    },
+    controlButtonText: { color: "#FFF", fontSize: 13, fontWeight: "bold" },
+    resetBtn: { backgroundColor: "#221F4D", paddingHorizontal: 10 },
+    progressCircleContainer: { justifyContent: "center", alignItems: "center" },
     progressCircle: {
         width: 76,
         height: 76,
@@ -273,11 +256,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#221F4D",
     },
-    progressPercentage: {
-        color: "#FFFFFF",
-        fontSize: 14,
-        fontWeight: "bold",
-    },
+    progressPercentage: { color: "#FFFFFF", fontSize: 14, fontWeight: "bold" },
     quoteCard: {
         backgroundColor: "#221F4D",
         borderRadius: 16,
@@ -287,34 +266,11 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: 30,
     },
-    quoteText: {
-        color: "#E6E6F2",
-        fontSize: 13,
-        fontStyle: "italic",
-        flex: 1,
-        paddingRight: 10,
-        lineHeight: 18,
-    },
-    quoteIcon: {
-        fontSize: 18,
-    },
-    sectionHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        color: "#FFFFFF",
-        fontSize: 16,
-        fontWeight: "bold",
-        letterSpacing: 0.5,
-    },
-    statsContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        gap: 10,
-    },
+    quoteText: { color: "#E6E6F2", fontSize: 13, fontStyle: "italic", flex: 1, paddingRight: 10, lineHeight: 18 },
+    quoteIcon: { fontSize: 18 },
+    sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
+    sectionTitle: { color: "#FFFFFF", fontSize: 16, fontWeight: "bold", letterSpacing: 0.5 },
+    statsContainer: { flexDirection: "row", justifyContent: "space-between", gap: 10 },
     statBox: {
         flex: 1,
         backgroundColor: "#15162E",
@@ -325,20 +281,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#221F4D",
     },
-    statIcon: {
-        fontSize: 22,
-        marginBottom: 8,
-    },
-    statValue: {
-        color: "#FFFFFF",
-        fontSize: 18,
-        fontWeight: "bold",
-    },
-    statLabel: {
-        color: "#8E8EA9",
-        fontSize: 11,
-        textAlign: "center",
-        marginTop: 4,
-        lineHeight: 14,
-    },
+    statIcon: { fontSize: 22, marginBottom: 8 },
+    statValue: { color: "#FFFFFF", fontSize: 18, fontWeight: "bold" },
+    statLabel: { color: "#8E8EA9", fontSize: 11, textAlign: "center", marginTop: 4, lineHeight: 14 },
 });
