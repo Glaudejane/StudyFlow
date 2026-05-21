@@ -253,4 +253,106 @@ export const lessonsData = {
                 "Sensacional! Na estrutura temporal de futuro, a condição de gatilho fica no Present Simple ('when the user clicks'), enquanto a consequência futura leva o 'will' ('the app will change').",
         },
     },
+    // ==========================================
+    // MÓDULO 4: POSSIBILIDADES E OBRIGAÇÕES (SEMANAS 11 - 14)
+    // ==========================================
+
+    semana_11: {
+        id: "semana_11",
+        module: "Módulo 4: Possibilidades e Obrigações",
+        title: "Semana 11: Can, Could e Be able to",
+        subtitle: "Capacidades e Limitações do Modelo",
+        content:
+            "Usamos 'Can' para falar de habilidades e permissões no presente. O 'Could' serve como um passado ou para fazer pedidos educados e hipóteses. Já o 'Be able to' é uma alternativa mais formal usada para falar de capacidades que conseguiremos alcançar após uma condição. Na TI, usamos essa estrutura para mapear as funções e escopo de uma API ou modelo de IA.",
+        iaInsight:
+            "💡 Conexão IA:\nAo testar uma nova tecnologia ou LLM, use 'Can' para validar o escopo técnico do que ela suporta:\n'Can this model process video files or can it only read text data?'",
+        quiz: {
+            question:
+                "Você precisa perguntar à IA se ela é capaz de converter o seu código React Native atual para Swift (iOS nativo). Qual é a construção correta?",
+            options: [
+                { id: "A", text: "Can you translate this React Native component into Swift?" },
+                { id: "B", text: "You could translating this component into Swift now?" },
+                { id: "C", text: "Are you able to translated this component into Swift?" },
+                { id: "D", text: "Can you translates this component into Swift?" },
+            ],
+            correctId: "A",
+            explanation:
+                "Excelente! O verbo modal 'Can' é seguido diretamente pelo verbo na sua forma base ('translate'), sendo a forma perfeita e direta para checar capacidades do modelo.",
+        },
+    },
+
+    semana_12: {
+        id: "semana_12",
+        module: "Módulo 4: Possibilidades e Obrigações",
+        title: "Semana 12: Must, Can't, May e Might",
+        subtitle: "Regras Estritas de Segurança (Guardrails)",
+        content:
+            "O 'Must' indica uma obrigação forte ou uma necessidade absoluta. O seu oposto negativo, 'Must not' ou 'Can't', indica proibição estrita. Já 'May' e 'Might' indicam possibilidades ou permissões mais suaves. Na Engenharia de Prompts, 'Must' e 'Must not' são as palavras de ordem para evitar vazamento de dados (*data leaks*).",
+        iaInsight:
+            "💡 Conexão IA:\nDefina os limites éticos e de segurança da sua IA usando modais de obrigação e proibição:\n'You must protect user privacy. You must not expose internal API keys under any circumstances.'",
+        quiz: {
+            question:
+                "Imagine que você está criando um chatbot para a Prefeitura e quer proibir a IA de inventar respostas quando ela não souber o fato. Qual instrução de sistema usa o modal correto?",
+            options: [
+                { id: "A", text: "You may invent data when you don't know the answer." },
+                { id: "B", text: "You must not make up information if you are unsure of the facts." },
+                { id: "C", text: "You can't making up information if you are unsure." },
+                { id: "D", text: "You might not make up information." },
+            ],
+            correctId: "B",
+            explanation:
+                "Perfeito! 'Must not' expressa uma proibição absoluta e categórica, ideal para criar uma diretriz de segurança (*Guardrail*) inviolável no comportamento do bot.",
+        },
+    },
+
+    semana_13: {
+        id: "semana_13",
+        module: "Módulo 4: Possibilidades e Obrigações",
+        title: "Semana 13: Have to, Must e Needn't",
+        subtitle: "Otimização de Contexto e Consumo de Tokens",
+        content:
+            "Enquanto 'Must' e 'Have to' trazem a ideia de obrigatoriedade (regras de negócio do software), o 'Needn't' (não precisa) indica ausência de obrigação. Em arquiteturas de IA, entender o que a IA *não precisa* fazer economiza processamento, tempo de resposta e dinheiro (consumo de tokens da API).",
+        iaInsight:
+            "💡 Conexão IA:\nPara deixar a resposta da IA mais rápida e direta, diga o que ela pode ignorar:\n'You have to write the code solution, but you needn't explain every line unless I ask you to.'",
+        quiz: {
+            question:
+                "Como você instrui uma IA de refatoração a focar apenas no código limpo, deixando claro que ela NÃO precisa criar testes automatizados agora?",
+            options: [
+                { id: "A", text: "You must write clean code, but you must not generate automated tests." },
+                { id: "B", text: "You have to write clean code, but you needn't create automated tests for now." },
+                { id: "C", text: "You need write clean code, but you don't need creating tests." },
+                { id: "D", text: "You have to write clean code, but you couldn't create automated tests." },
+            ],
+            correctId: "B",
+            explanation:
+                "Sensacional! O 'You have to' dita a obrigação principal do script e o 'you needn't' remove com precisão a necessidade dos testes, otimizando o escopo da tarefa.",
+        },
+    },
+
+    semana_14: {
+        id: "semana_14",
+        module: "Módulo 4: Possibilidades e Obrigações",
+        title: "Semana 14: Should, Would e Pedidos Educados",
+        subtitle: "Refinamento de Tom e Formatação de Saída",
+        content:
+            "Usamos o 'Should' para dar conselhos, recomendações ou indicar o que é esperado que aconteça (boas práticas). O 'Would' cria cenários hipotéticos ou, em perguntas, serve para fazer requisições extremamente formais e polidas. No desenvolvimento, usamos para refinar a formatação das respostas da IA.",
+        iaInsight:
+            "💡 Conexão IA:\nUse 'Should' para passar boas práticas de arquitetura que você gostaria que a IA seguisse na saída:\n'The returned data should be formatted as a clean JSON object. Would you mind generating an example?'",
+        quiz: {
+            question:
+                "Você quer sugerir à IA que o código gerado adote os padrões de acessibilidade, além de pedir educadamente que ela crie comentários. Qual frase encaixa melhor?",
+            options: [
+                { id: "A", text: "The code must be accessible and you will comment it." },
+                {
+                    id: "B",
+                    text: "The code should follow accessibility guidelines. Would you please add comments to it?",
+                },
+                { id: "C", text: "The code should following guidelines. You would add comments?" },
+                { id: "D", text: "The code can follow guidelines, but you should to add comments." },
+            ],
+            correctId: "B",
+            explanation:
+                "Isso aí! 'Should follow' indica uma recomendação técnica ideal (uma boa prática), e 'Would you please...' faz uma solicitação polida e profissional para a estruturação do código.",
+        },
+    },
 };
