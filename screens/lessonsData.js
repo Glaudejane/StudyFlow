@@ -430,4 +430,67 @@ export const lessonsData = {
                 "Perfeito! O adjetivo 'responsible' exige obrigatoriamente a preposição 'for'. E, pelas regras da gramática, qualquer verbo vindo logo após uma preposição precisa ganhar o sufixo -ING ('for saving').",
         },
     },
+    // ==========================================
+  // MÓDULO 6: VERBOS COM PREPOSIÇÕES E PHRASAL VERBS (SEMANAS 18 - 20)
+  // ==========================================
+
+  "semana_18": {
+    id: "semana_18",
+    module: "Módulo 6: Verbos com Preposições e Phrasal Verbs",
+    title: "Semana 18: Verb + Preposition",
+    subtitle: "Ações Práticas em Requisições HTTP e Eventos",
+    content: "Muitos verbos essenciais na programação exigem uma preposição específica para fazerem sentido em inglês. Por exemplo, nós fazemos o upload de algo PARA um lugar ('upload TO'), baixamos DE algum lugar ('download FROM'), clicamos EM algo ('click ON') e nos inscrevemos EM um serviço ('subscribe TO'). Usar essas combinações perfeitamente evita erros ao documentar códigos ou criar prompts.",
+    iaInsight: "💡 Conexão IA:\nAo interagir com a IA para estruturar funções de eventos, use as regências verbais corretas:\n'Create a function that triggers when the user clicks ON the profile picture to download data FROM the server.'",
+    quiz: {
+      question: "Você quer que a IA crie um botão para o seu app React Native. O objetivo é que, ao clicar, o app envie o arquivo de log para o servidor. Qual frase está gramaticalmente correta?",
+      options: [
+        { id: "A", text: "Create a button to upload the log file into the server." },
+        { id: "B", text: "Create a button to upload the log file to the server." },
+        { id: "C", text: "Create a button to upload the log file at the server." },
+        { id: "D", text: "Create a button to upload the log file from the server." }
+      ],
+      correctId: "B",
+      explanation: "Perfeito! O verbo 'upload' exige a preposição 'to' para indicar o destino do envio dos dados ('upload to the server'). O 'from' seria usado se estivéssemos baixando (downloading) o arquivo."
+    }
+  },
+
+  "semana_19": {
+    id: "semana_19",
+    module: "Módulo 6: Verbos com Preposições e Phrasal Verbs",
+    title: "Semana 19: Phrasal Verbs (In, Out, On, Off)",
+    subtitle: "Comandos de Autenticação e Estados de Componentes",
+    content: "Phrasal Verbs são combinações de um verbo com uma preposição que, juntos, ganham um significado totalmente novo. Na TI, o grupo com 'In/Out/On/Off' gerencia acessos e estados: 'Log in / Sign in' (entrar no sistema), 'Log out / Sign out' (sair do sistema), 'Turn on' (ligar/ativar um componente como a câmera) e 'Turn off' (desligar/desativar).",
+    iaInsight: "💡 Conexão IA:\nUse estes Phrasal Verbs universais para pedir telas ou fluxos de autenticação para a IA:\n'I need a screen where users can log in using their email, and a header button to let them log out safely.'"
+    quiz: {
+      question: "Como você pede para a IA criar uma lógica de chaves (Toggles) para ativar ou desativar as notificações do aplicativo?",
+      options: [
+        { id: "A", text: "Write a function to switch in and switch out the application notifications." },
+        { id: "B", text: "Write a function to turn on and turn off the application notifications." },
+        { id: "C", text: "Write a function to log on and log off the application notifications." },
+        { id: "D", text: "Write a function to sign in and sign out the application notifications." }
+      ],
+      correctId: "B",
+      explanation: "Sensacional! 'Turn on' e 'Turn off' são as expressões corretas para ligar/ativar e desligar/desativar componentes eletrônicos, funções de software ou estados de chaves de configuração (toggles)."
+    }
+  },
+
+  "semana_20": {
+    id: "semana_20",
+    module: "Módulo 6: Verbos com Preposições e Phrasal Verbs",
+    title: "Semana 20: Phrasal Verbs (Up, Down, Away, Back)",
+    subtitle: "Manutenção de Sistemas e Rotinas de Infraestrutura",
+    content: "Chegamos à última semana! O grupo de Phrasal Verbs com 'Up, Down, Away, Back' dita as regras de manutenção técnica: 'Set up' (configurar o ambiente do zero), 'Shut down' (desligar servidores de forma segura), 'Back up' (criar cópias de segurança dos dados) e 'Clean up' (limpar código morto ou lixo da memória). Dominar esses termos fecha o seu ciclo de comunicação profissional em TI.",
+    iaInsight: "💡 Conexão IA:\nPeça ajuda à IA para organizar o seu projeto ou banco de dados usando termos de manutenção:\n'Help me clean up this component and show me how to back up my local database safely.'",
+    quiz: {
+      question: "Você terminou o seu aplicativo e quer que a IA te ajude a criar um guia de como configurar todo o ambiente do projeto no computador de outra pessoa. Qual termo você deve usar?",
+      options: [
+        { id: "A", text: "Help me write a guide on how to clean up the environment." },
+        { id: "B", text: "Help me write a guide on how to set up the project environment." },
+        { id: "C", text: "Help me write a guide on how to back up the environment." },
+        { id: "D", text: "Help me write a guide on how to shut down the project." }
+      ],
+      correctId: "B",
+      explanation: "Parabéns! 'Set up' é o phrasal verb padrão na tecnologia para se referir à instalação, preparação e configuração inicial de qualquer sistema, software ou ambiente de desenvolvimento!"
+    }
+  }
 };
