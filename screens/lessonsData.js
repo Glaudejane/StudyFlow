@@ -355,4 +355,79 @@ export const lessonsData = {
                 "Isso aí! 'Should follow' indica uma recomendação técnica ideal (uma boa prática), e 'Would you please...' faz uma solicitação polida e profissional para a estruturação do código.",
         },
     },
+    // ==========================================
+    // MÓDULO 5: PREPOSIÇÕES E CONECTIVOS (SEMANAS 15 - 17)
+    // ==========================================
+
+    semana_15: {
+        id: "semana_15",
+        module: "Módulo 5: Preposições e Conectivos",
+        title: "Semana 15: In, At e On (Tempo e Lugar)",
+        subtitle: "Posicionamento de Elementos na UI e Agendamentos",
+        content:
+            "Usamos 'In' para espaços fechados, cidades/países, meses ou anos (ideia de dentro/geral). 'On' é usado para superfícies (telas, páginas, dias específicos da semana). 'At' é usado para pontos específicos (endereços exatos, horários ou locais precisos). Na TI, essa triade dita as regras de posicionamento de tela e configurações de fusos horários.",
+        iaInsight:
+            "💡 Conexão IA:\nSeja cirúrgica ao pedir para a IA estilizar sua interface ou configurar datas:\n• 'Place the button ON the screen (superfície).'\n• 'The notification triggers AT 9:00 AM (ponto exato).'\n• 'Store the user data IN the cloud database (dentro).'",
+        quiz: {
+            question:
+                "Você precisa pedir para a IA gerar um estilo CSS onde o logo do aplicativo fique centralizado no topo da tela. Qual comando usa a preposição de superfície correta?",
+            options: [
+                { id: "A", text: "Please center the logo button at the screen header." },
+                { id: "B", text: "Please center the logo button in the screen header." },
+                { id: "C", text: "Please center the logo button on the screen header." },
+                { id: "D", text: "Please center the logo button into the screen header." },
+            ],
+            correctId: "C",
+            explanation:
+                "Excelente! Como a tela do celular e o cabeçalho são tratados como superfícies visuais, a preposição correta para indicar que algo está sobre eles é o 'On' ('on the screen header').",
+        },
+    },
+
+    semana_16: {
+        id: "semana_16",
+        module: "Módulo 5: Preposições e Conectivos",
+        title: "Semana 16: Preposições de Movimento e Posição",
+        subtitle: "Fluxo de Dados e Animações de Componentes",
+        content:
+            "Preposições de movimento como 'Into' (para dentro de), 'Through' (através de), 'To' (para) e 'From' (de/origem) descrevem ações dinâmicas. Na programação, usamos esses termos para explicar para a IA como os dados transitam entre funções ou como um componente deve deslizar em uma animação de tela.",
+        iaInsight:
+            "💡 Conexão IA:\nUse preposições de movimento para descrever fluxos de dados ou transições visuais em seus prompts:\n'The application fetches data FROM the API, processes it THROUGH a filter, and inserts it INTO the local state.'",
+        quiz: {
+            question:
+                "Como você estruturaria um prompt para a IA criar uma animação onde um modal desliza de fora para dentro da área visível da tela?",
+            options: [
+                { id: "A", text: "Make the modal component slide from outside into the visible area." },
+                { id: "B", text: "Make the modal component slide to outside through the visible area." },
+                { id: "C", text: "Make the modal component slide at outside in the visible area." },
+                { id: "D", text: "Make the modal component slide off outside on the visible area." },
+            ],
+            correctId: "A",
+            explanation:
+                "Sensacional! 'From' indica o ponto de origem do movimento (fora da tela) e 'into' indica a movimentação para o interior de um espaço delimitado (a área visível).",
+        },
+    },
+
+    semana_17: {
+        id: "semana_17",
+        module: "Módulo 5: Preposições e Conectivos",
+        title: "Semana 17: Combinações de Substantivos/Adjetivos + Preposições",
+        subtitle: "Dependências de Software e Compatibilidade",
+        content:
+            "Em inglês, muitas palavras exigem uma preposição fixa (ex: 'compatible WITH', 'responsible FOR', 'depend ON'). Decorar essas combinações evita que você escreva prompts confusos ou documentações técnicas com erros de sintaxe estrutural.",
+        iaInsight:
+            "💡 Conexão IA:\nAo pedir ajuda à IA para instalar pacotes ou debugar dependências, use os pares corretos de palavras:\n'Is this specific version of Expo compatible WITH React Native 0.74? My code depends ON it.'",
+        quiz: {
+            question:
+                "Você está criando a documentação do seu app com a IA e quer escrever: 'Esta função é responsável por salvar o XP'. Qual é a combinação gramatical correta?",
+            options: [
+                { id: "A", text: "This function is responsible with saving the XP." },
+                { id: "B", text: "This function is responsible for saving the XP." },
+                { id: "C", text: "This function is responsible about save the XP." },
+                { id: "D", text: "This function is responsible by saving the XP." },
+            ],
+            correctId: "B",
+            explanation:
+                "Perfeito! O adjetivo 'responsible' exige obrigatoriamente a preposição 'for'. E, pelas regras da gramática, qualquer verbo vindo logo após uma preposição precisa ganhar o sufixo -ING ('for saving').",
+        },
+    },
 };
