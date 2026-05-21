@@ -3,16 +3,17 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Ale
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
-import { Audio } from "expo-av"; // 🎵 IMPORTANTE: Importamos o motor de áudio!
+import { Audio } from "expo-av";
 
-export default function HomeScreen() {
+// 1. ADICIONAMOS "navigation" NOS PARÂMETROS DA HOME
+export default function HomeScreen({ navigation }) {
     const isFocused = useIsFocused();
 
     // ---- ESTADOS DO CRONÔMETRO ----
-    const FOCUS_TIME_MINUTES = 25; // Duração do bloco de foco em minutos
+    const FOCUS_TIME_MINUTES = 25; 
     const [secondsLeft, setSecondsLeft] = useState(FOCUS_TIME_MINUTES * 60);
     const [isActive, setIsActive] = useState(false);
-    const [sound, setSound] = useState(null); // 🎵 Estado para controlar o arquivo de som
+    const [sound, setSound] = useState(null); 
 
     // ---- ESTADOS DE PROGRESSO DO ESTUDANTE ----
     const [xp, setXp] = useState(0);
@@ -22,14 +23,12 @@ export default function HomeScreen() {
     const XP_KEY = "@studyflow:xp";
     const LEVEL_KEY = "@studyflow:level";
 
-    // 1. CARREGAR DADOS DO BANCO SEMPRE QUE A HOME FICAR VISÍVEL
     useEffect(() => {
         if (isFocused) {
             loadUserData();
         }
     }, [isFocused]);
 
-    // 2. CORAÇÃO DO CRONÔMETRO (O CONTADOR REGRESSIVO)
     useEffect(() => {
         let interval = null;
 
@@ -46,7 +45,6 @@ export default function HomeScreen() {
         return () => clearInterval(interval);
     }, [isActive, secondsLeft]);
 
-    // 🎵 3. LIMPEZA DE MEMÓRIA: Descarrega o som quando a tela fechar (boa prática!)
     useEffect(() => {
         return sound
             ? () => {
@@ -55,15 +53,11 @@ export default function HomeScreen() {
             : undefined;
     }, [sound]);
 
-    // 🎵 4. FUNÇÃO MÁGICA: Carrega e toca o alarme
     const playAlarmSound = async () => {
         try {
-            // Usando um som de sininho suave direto da internet para testarmos
-            const { sound: playbackObject } = await Audio.Sound.createAsync(
-                require("../assets/alarm.mp3"), // Substitua pelo caminho do seu arquivo de som local ou URL
-            );
+            const { sound: playbackObject } = await Audio.Sound.createAsync(require("../assets/alarm.mp3"));
             setSound(playbackObject);
-            await playbackObject.playAsync(); // Toca o som!
+            await playbackObject.playAsync();
         } catch (error) {
             console.log("Erro ao tocar o som:", error);
         }
@@ -81,9 +75,7 @@ export default function HomeScreen() {
         }
     };
 
-    // Função executada quando o cronômetro zera com sucesso
     const handleFocusCompleted = async () => {
-        // 🎵 Dispara o som do alarme imediatamente quando zerar!
         playAlarmSound();
 
         try {
@@ -199,13 +191,52 @@ export default function HomeScreen() {
                     </View>
                 </View>
 
-                <View style={{ height: 30 }} />
+                {/* ======================================================= */}
+                {/* 2. NOVA SEÇÃO: TRILHAS DE ESTUDO (DO SEU PROTÓTIPO)       */}
+                {/* ======================================================= */}
+                <View style={[styles.sectionHeader, { marginTop: 30 }]}>
+                    <Text style={styles.sectionTitle}>Trilhas de estudo</Text>
+                </View>
+
+                <View style={styles.trilhasContainer}>
+                    {/* CARD DE INGLÊS (ATIVO) */}
+                    <TouchableOpacity
+                        style={styles.trilhaCard}
+                        onPress={() => navigation.navigate("Learn")} // <--- ABRE O NOSSO COMPONENTE DE QUIZ!
+                        activeOpacity={0.7}
+                    >
+                        <View style={[styles.trilhaBadge, { backgroundColor: "#221F4D" }]}>
+                            <Text style={styles.trilhaBadgeText}>EN</Text>
+                        </View>
+                        <Text style={styles.trilhaTitle}>Inglês</Text>
+                        <Text style={styles.trilhaProgress}>1 / 30 aulas</Text>
+                    </TouchableOpacity>
+
+                    {/* CARD DE INTELIGÊNCIA ARTIFICIAL */}
+                    <TouchableOpacity
+                        style={styles.trilhaCard}
+                        onPress={() =>
+                            Alert.alert(
+                                "Módulo de IA",
+                                "O módulo estruturado de Inteligência Artificial será desbloqueado em breve! Continue focada.",
+                            )
+                        }
+                        activeOpacity={0.7}
+                    >
+                        <View style={[styles.trilhaBadge, { backgroundColor: "#004B23" }]}>
+                            <Text style={styles.trilhaBadgeText}>AI</Text>
+                        </View>
+                        <Text style={styles.trilhaTitle}>Inteligência{"\n"}Artificial</Text>
+                        <Text style={styles.trilhaProgress}>0 / 30 aulas</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={{ height: 40 }} />
             </ScrollView>
         </SafeAreaView>
     );
 }
 
-// ... Os estilos (StyleSheet) continuam exatamente iguais ao código anterior!
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#090A1A" },
     scrollContent: { paddingHorizontal: 24, paddingTop: 20 },
@@ -284,4 +315,26 @@ const styles = StyleSheet.create({
     statIcon: { fontSize: 22, marginBottom: 8 },
     statValue: { color: "#FFFFFF", fontSize: 18, fontWeight: "bold" },
     statLabel: { color: "#8E8EA9", fontSize: 11, textAlign: "center", marginTop: 4, lineHeight: 14 },
+
+    // ESTILOS ADICIONADOS PARA AS TRILHAS DO PROTÓTIPO
+    trilhasContainer: { flexDirection: "row", justifyContent: "space-between", gap: 14 },
+    trilhaCard: {
+        flex: 1,
+        backgroundColor: "#15162E",
+        borderRadius: 20,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: "#221F4D",
+    },
+    trilhaBadge: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 12,
+    },
+    trilhaBadgeText: { color: "#FFF", fontWeight: "bold", fontSize: 12 },
+    trilhaTitle: { color: "#FFF", fontSize: 15, fontWeight: "bold", lineHeight: 20 },
+    trilhaProgress: { color: "#8E8EA9", fontSize: 12, marginTop: 8 },
 });
