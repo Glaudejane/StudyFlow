@@ -3,9 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Ale
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
-import { Audio } from "expo-av";
-
-// 1. ADICIONAMOS "navigation" NOS PARÂMETROS DA HOME
+import { Audio } from "expo-audio";// 1. ADICIONAMOS "navigation" NOS PARÂMETROS DA HOME
 export default function HomeScreen({ navigation }) {
     const isFocused = useIsFocused();
 
@@ -202,7 +200,8 @@ export default function HomeScreen({ navigation }) {
                     {/* CARD DE INGLÊS (ATIVO) */}
                     <TouchableOpacity
                         style={styles.trilhaCard}
-                        onPress={() => navigation.navigate("Learn")} // <--- ABRE O NOSSO COMPONENTE DE QUIZ!
+                        // AGORA PASSAMOS O ID DA SEMANA DESEJADA AQUI!
+                        onPress={() => navigation.navigate("Learn", { weekId: "semana_1" })}
                         activeOpacity={0.7}
                     >
                         <View style={[styles.trilhaBadge, { backgroundColor: "#221F4D" }]}>

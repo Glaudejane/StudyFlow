@@ -1,37 +1,30 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+// 1. IMPORTAÇÃO DO SAFE AREA VIEW CORRETO (Trocou a origem para a nova biblioteca)
+import { SafeAreaView } from "react-native-safe-area-context";
+import { lessonsData } from "./lessonsData";
 
-// Nossos dados pedagógicos (JSON)
-const lessonData = {
-    id: "eng_ia_1",
-    title: "Present Continuous + IA",
-    subtitle: "Descrevendo o Agora para a IA",
-    content:
-        "O Present Continuous (sujeito + am/is/are + verbo com -ING) é usado para falar sobre ações que estão acontecendo neste exato momento. Na tecnologia, usamos isso para dar o contexto atual do nosso sistema ou do nosso código para a Inteligência Artificial.",
-    iaInsight:
-        "💡 Conexão IA:\nQuando o seu código der erro, use o Present Continuous para explicar o cenário presente:\n\n'I am developing a React Native screen, but the button is not showing up. Can you help me?'",
-    quiz: {
-        question:
-            "Imagine que você está programando e o simulador travou. Qual das opções abaixo usa o Present Continuous corretamente para explicar a situação atual para a IA?",
-        options: [
-            { id: "A", text: "I develop a screen and it stops working." },
-            { id: "B", text: "I am developing a screen and it is not responding." },
-            { id: "C", text: "I developed a screen and it work." },
-            { id: "D", text: "I will develop a screen now." },
-        ],
-        correctId: "B",
-        explanation:
-            "Muito bem! 'I am developing' (estou desenvolvendo) e 'is not responding' (não está respondendo) mostram à IA o que está acontecendo exatamente agora.",
-    },
-};
+export default function LearnScreen({ route, navigation }) {
+    // Captura segura dos parâmetros da rota
+    const weekId = route?.params?.weekId || "semana_1";
+    const currentLesson = lessonsData[weekId];
 
-export default function LearnScreen({ navigation }) {
-    const [viewMode, setViewMode] = useState("lesson"); // 'lesson' ou 'quiz'
+    const [viewMode, setViewMode] = useState("lesson");
     const [selectedOption, setSelectedOption] = useState(null);
     const [quizAnswered, setQuizAnswered] = useState(false);
 
+    if (!currentLesson) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <Text style={{ color: "#FFF", padding: 24 }}>Ops! Conteúdo desta semana não encontrado.</Text>
+            </SafeAreaView>
+        );
+    }
+
+    // ... O restante das funções (handleOptionPress, handleCheckAnswer) e o seu return continuam exatamente iguais!
+
     const handleOptionPress = (optionId) => {
-        if (quizAnswered) return; // Impede mudar a resposta depois de responder
+        if (quizAnswered) return;
         setSelectedOption(optionId);
     };
 
@@ -42,8 +35,7 @@ export default function LearnScreen({ navigation }) {
         }
         setQuizAnswered(true);
 
-        if (selectedOption === lessonData.quiz.correctId) {
-            // Aqui no futuro vamos disparar a função de som e somar +50 XP!
+        if (selectedOption === currentLesson.quiz.correctId) {
             Alert.alert("🎉 Parabéns!", "Você acertou e ganhou +50 XP!");
         }
     };
@@ -52,21 +44,22 @@ export default function LearnScreen({ navigation }) {
         setSelectedOption(null);
         setQuizAnswered(false);
         setViewMode("lesson");
+        navigation.goBack(); // Volta para a Home após concluir!
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scroll}>
-                <Text style={styles.title}>{lessonData.title}</Text>
-                <Text style={styles.subtitle}>{lessonData.subtitle}</Text>
+                {/* TROCAMOS lessonData POR currentLesson EM TODOS OS TEXTOS ABAIXO */}
+                <Text style={styles.title}>{currentLesson.title}</Text>
+                <Text style={styles.subtitle}>{currentLesson.subtitle}</Text>
 
                 {viewMode === "lesson" ? (
-                    // TELA DA LIÇÃO
                     <View>
-                        <Text style={styles.bodyText}>{lessonData.content}</Text>
+                        <Text style={styles.bodyText}>{currentLesson.content}</Text>
 
                         <View style={styles.iaBox}>
-                            <Text style={styles.iaText}>{lessonData.iaInsight}</Text>
+                            <Text style={styles.iaText}>{currentLesson.iaInsight}</Text>
                         </View>
 
                         <TouchableOpacity style={styles.mainButton} onPress={() => setViewMode("quiz")}>
@@ -74,12 +67,10 @@ export default function LearnScreen({ navigation }) {
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    // TELA DO QUIZ
                     <View>
-                        <Text style={styles.questionText}>{lessonData.quiz.question}</Text>
+                        <Text style={styles.questionText}>{currentLesson.quiz.question}</Text>
 
-                        {lessonData.quiz.options.map((option) => {
-                            // Lógica de coloração dos botões do quiz
+                        {currentLesson.quiz.options.map((option) => {
                             let optionStyle = styles.optionButton;
                             let textStyle = styles.optionText;
 
@@ -88,7 +79,7 @@ export default function LearnScreen({ navigation }) {
                             }
 
                             if (quizAnswered) {
-                                if (option.id === lessonData.quiz.correctId) {
+                                if (option.id === currentLesson.quiz.correctId) {
                                     optionStyle = [styles.optionButton, styles.optionCorrect];
                                 } else if (selectedOption === option.id) {
                                     optionStyle = [styles.optionButton, styles.optionIncorrect];
@@ -116,7 +107,7 @@ export default function LearnScreen({ navigation }) {
                         ) : (
                             <View style={styles.explanationBox}>
                                 <Text style={styles.explanationTitle}>Explicação Pedagógica:</Text>
-                                <Text style={styles.explanationText}>{lessonData.quiz.explanation}</Text>
+                                <Text style={styles.explanationText}>{currentLesson.quiz.explanation}</Text>
 
                                 <TouchableOpacity
                                     style={[styles.mainButton, { backgroundColor: "#221F4D", marginTop: 20 }]}
@@ -133,13 +124,13 @@ export default function LearnScreen({ navigation }) {
     );
 }
 
+// ... Os seus estilos (StyleSheet.create) continuam exatamente iguais lá embaixo!
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#090A1A" },
     scroll: { padding: 24, paddingBottom: 40 },
     title: { color: "#FFF", fontSize: 26, fontWeight: "bold" },
     subtitle: { color: "#6C5CE7", fontSize: 16, fontWeight: "600", marginBottom: 25 },
     bodyText: { color: "#CBD5E1", fontSize: 18, lineHeight: 28, marginBottom: 20 },
-
     iaBox: {
         backgroundColor: "#15162E",
         padding: 20,
@@ -151,12 +142,9 @@ const styles = StyleSheet.create({
         borderColor: "#221F4D",
     },
     iaText: { color: "#DEFF9A", fontSize: 16, lineHeight: 24 },
-
     mainButton: { backgroundColor: "#6C5CE7", padding: 18, borderRadius: 30, alignItems: "center", marginTop: 25 },
     buttonText: { color: "#FFF", fontWeight: "bold", fontSize: 16 },
-
     questionText: { color: "#FFF", fontSize: 20, fontWeight: "600", marginBottom: 25, lineHeight: 28 },
-
     optionButton: {
         backgroundColor: "#15162E",
         padding: 18,
@@ -169,7 +157,6 @@ const styles = StyleSheet.create({
     optionSelected: { borderColor: "#6C5CE7", backgroundColor: "rgba(108, 92, 231, 0.1)" },
     optionCorrect: { borderColor: "#4CD137", backgroundColor: "rgba(76, 209, 55, 0.15)" },
     optionIncorrect: { borderColor: "#FF4757", backgroundColor: "rgba(255, 71, 87, 0.15)" },
-
     explanationBox: {
         backgroundColor: "#15162E",
         padding: 20,
