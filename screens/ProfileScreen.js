@@ -42,7 +42,7 @@ export default function ProfileScreen() {
                     </View>
 
                     <View style={styles.userMainInfo}>
-                        <Text style={styles.profileUserName}>glaucarv45 👋</Text>
+                        <Text style={styles.profileUserName}>Glaudejane 👋</Text>
                         <Text style={styles.profileUserBio}>Construindo sua nova carreira na tecnologia 🚀</Text>
                         <View style={styles.locationRow}>
                             <Ionicons name="location-outline" size={14} color="#8E8EA9" />
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-    circularPercentText: { color: "#FFF", fontSize: 12, fontWeight: "bold" },
+    circularPercentText: { color: "#FFF", fontSize: 10, fontWeight: "bold" },
     horizontalTrackContainer: {
         height: 6,
         backgroundColor: "#221F4D",

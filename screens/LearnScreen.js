@@ -1,29 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
-// 1. IMPORTAÇÃO DO SAFE AREA VIEW CORRETO (Trocou a origem para a nova biblioteca)
 import { SafeAreaView } from "react-native-safe-area-context";
-import { lessonsData } from "./lessonsData";
-// No topo do arquivo, junto com os outros imports, adicione:
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// 📥 IMPORTAÇÃO DOS DOIS BANCOS DE DADOS
+import { lessonsData } from "./lessonsData"; // Seus dados de Inglês
+// Vamos assumir que você criará o arquivo lessonsAiData.js na mesma pasta
+import { lessonsAiData } from "./lessonsAiData";
 
 export default function LearnScreen({ route, navigation }) {
-    // Captura segura dos parâmetros da rota
+    // 📥 Captura os parâmetros dinâmicos enviados pelas telas anteriores
+    const tipoTrilha = route?.params?.tipoTrilha || "Ingles";
+    const moduloId = route?.params?.moduloId || "m1";
     const weekId = route?.params?.weekId || "semana_1";
-    const currentLesson = lessonsData[weekId];
+
+    // 🔀 DECISÃO DINÂMICA: Qual banco de dados ler?
+    let currentLesson = null;
+
+    if (tipoTrilha === "IA") {
+        // Se veio da tela de IA, busca no arquivo de IA usando o moduloId (ex: 'm1', 'm2')
+        currentLesson = lessonsAiData ? lessonsAiData[moduloId] : null;
+    } else {
+        // Se veio de Inglês, usa a lógica antiga por weekId
+        currentLesson = lessonsData[weekId];
+    }
 
     const [viewMode, setViewMode] = useState("lesson");
     const [selectedOption, setSelectedOption] = useState(null);
     const [quizAnswered, setQuizAnswered] = useState(false);
 
+    // Reseta o estado do quiz caso o componente seja reutilizado
+    useEffect(() => {
+        setViewMode("lesson");
+        setSelectedOption(null);
+        setQuizAnswered(false);
+    }, [tipoTrilha, moduloId, weekId]);
+
     if (!currentLesson) {
         return (
             <SafeAreaView style={styles.container}>
-                <Text style={{ color: "#FFF", padding: 24 }}>Ops! Conteúdo desta semana não encontrado.</Text>
+                <Text style={{ color: "#FFF", padding: 24 }}>
+                    Ops! Conteúdo deste módulo ({tipoTrilha}) não encontrado.
+                </Text>
             </SafeAreaView>
         );
     }
-
-    // ... O restante das funções (handleOptionPress, handleCheckAnswer) e o seu return continuam exatamente iguais!
 
     const handleOptionPress = (optionId) => {
         if (quizAnswered) return;
@@ -37,19 +58,11 @@ export default function LearnScreen({ route, navigation }) {
         }
         setQuizAnswered(true);
 
-        // SE ACERTOU O QUIZ
         if (selectedOption === currentLesson.quiz.correctId) {
             try {
-                // 1. Buscamos o XP atual que está salvo no celular
                 const currentXPValue = await AsyncStorage.getItem("@studyflow:xp");
-
-                // Se já existir XP, convertemos para número. Se não existir (primeira vez), começa com 0.
                 let currentXP = currentXPValue ? parseInt(currentXPValue, 10) : 0;
-
-                // 2. Somamos os 50 pontos da vitória!
                 const newXP = currentXP + 50;
-
-                // 3. Gravamos o novo total de volta no "banco de dados de bolso"
                 await AsyncStorage.setItem("@studyflow:xp", newXP.toString());
 
                 Alert.alert("🎉 Parabéns!", "Você acertou e ganhou +50 XP!");
@@ -68,13 +81,12 @@ export default function LearnScreen({ route, navigation }) {
         setSelectedOption(null);
         setQuizAnswered(false);
         setViewMode("lesson");
-        navigation.goBack(); // Volta para a Home após concluir!
+        navigation.goBack();
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scroll}>
-                {/* TROCAMOS lessonData POR currentLesson EM TODOS OS TEXTOS ABAIXO */}
                 <Text style={styles.title}>{currentLesson.title}</Text>
                 <Text style={styles.subtitle}>{currentLesson.subtitle}</Text>
 
@@ -148,7 +160,6 @@ export default function LearnScreen({ route, navigation }) {
     );
 }
 
-// ... Os seus estilos (StyleSheet.create) continuam exatamente iguais lá embaixo!
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#090A1A" },
     scroll: { padding: 24, paddingBottom: 40 },
