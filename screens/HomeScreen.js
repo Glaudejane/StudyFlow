@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useIsFocused } from "@react-navigation/native";
-import { Audio } from "expo-audio";// 1. ADICIONAMOS "navigation" NOS PARÂMETROS DA HOME
+import { useIsFocused, useFocusEffect } from "@react-navigation/native";
+import { Audio } from "expo-audio";
+
 export default function HomeScreen({ navigation }) {
     const isFocused = useIsFocused();
 
-    // ---- ESTADOS DO CRONÔMETRO ----
-    const FOCUS_TIME_MINUTES = 25; 
+    // ---- ESTADOS DO CRONÔMETRO E PROGRESSO INTEGRADO ----
+    const FOCUS_TIME_MINUTES = 25;
     const [secondsLeft, setSecondsLeft] = useState(FOCUS_TIME_MINUTES * 60);
     const [isActive, setIsActive] = useState(false);
-    const [sound, setSound] = useState(null); 
+    const [sound, setSound] = useState(null);
 
-    // ---- ESTADOS DE PROGRESSO DO ESTUDANTE ----
+    // Variáveis unificadas de progresso
     const [xp, setXp] = useState(0);
     const [level, setLevel] = useState(1);
     const [streak, setStreak] = useState(1);
@@ -21,12 +22,36 @@ export default function HomeScreen({ navigation }) {
     const XP_KEY = "@studyflow:xp";
     const LEVEL_KEY = "@studyflow:level";
 
-    useEffect(() => {
-        if (isFocused) {
-            loadUserData();
-        }
-    }, [isFocused]);
+    // Função que vai carregar os dados atualizados do celular
+    const loadUserData = useCallback(async () => {
+        try {
+            const savedXp = await AsyncStorage.getItem(XP_KEY);
+            const savedLevel = await AsyncStorage.getItem(LEVEL_KEY);
 
+            if (savedXp !== null) {
+                setXp(parseInt(savedXp, 10));
+            } else {
+                setXp(0);
+            }
+
+            if (savedLevel !== null) {
+                setLevel(parseInt(savedLevel, 10));
+            } else {
+                setLevel(1);
+            }
+        } catch (error) {
+            console.log("Erro ao carregar dados do usuário:", error);
+        }
+    }, []);
+
+    // Atualiza o XP toda vez que a Home ganha o foco (vinda da tela de Quiz)
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+        }, [loadUserData]),
+    );
+
+    // Efeito para o funcionamento do Cronômetro
     useEffect(() => {
         let interval = null;
 
@@ -43,6 +68,7 @@ export default function HomeScreen({ navigation }) {
         return () => clearInterval(interval);
     }, [isActive, secondsLeft]);
 
+    // Limpeza do som do alarme
     useEffect(() => {
         return sound
             ? () => {
@@ -58,18 +84,6 @@ export default function HomeScreen({ navigation }) {
             await playbackObject.playAsync();
         } catch (error) {
             console.log("Erro ao tocar o som:", error);
-        }
-    };
-
-    const loadUserData = async () => {
-        try {
-            const savedXp = await AsyncStorage.getItem(XP_KEY);
-            const savedLevel = await AsyncStorage.getItem(LEVEL_KEY);
-
-            if (savedXp !== null) setXp(parseInt(savedXp));
-            if (savedLevel !== null) setLevel(parseInt(savedLevel));
-        } catch (error) {
-            console.log("Erro ao carregar dados de foco:", error);
         }
     };
 
@@ -176,9 +190,10 @@ export default function HomeScreen({ navigation }) {
                         <Text style={styles.statLabel}>Dias em{"\n"}sequência</Text>
                     </View>
 
+                    {/* USANDO A VARIÁVEL DE XP UNIFICADA */}
                     <View style={styles.statBox}>
                         <Text style={styles.statIcon}>⭐</Text>
-                        <Text style={styles.statValue}>{xp}</Text>
+                        <Text style={styles.statValue}>{xp} XP</Text>
                         <Text style={styles.statLabel}>XP{"\n"}acumulado</Text>
                     </View>
 
@@ -189,18 +204,15 @@ export default function HomeScreen({ navigation }) {
                     </View>
                 </View>
 
-                {/* ======================================================= */}
-                {/* 2. NOVA SEÇÃO: TRILHAS DE ESTUDO (DO SEU PROTÓTIPO)       */}
-                {/* ======================================================= */}
+                {/* Trilhas de Estudo */}
                 <View style={[styles.sectionHeader, { marginTop: 30 }]}>
                     <Text style={styles.sectionTitle}>Trilhas de estudo</Text>
                 </View>
 
                 <View style={styles.trilhasContainer}>
-                    {/* CARD DE INGLÊS (ATIVO) */}
+                    {/* CARD DE INGLÊS */}
                     <TouchableOpacity
                         style={styles.trilhaCard}
-                        // AGORA PASSAMOS O ID DA SEMANA DESEJADA AQUI!
                         onPress={() => navigation.navigate("Weeks")}
                         activeOpacity={0.7}
                     >
@@ -208,7 +220,7 @@ export default function HomeScreen({ navigation }) {
                             <Text style={styles.trilhaBadgeText}>EN</Text>
                         </View>
                         <Text style={styles.trilhaTitle}>Inglês</Text>
-                        <Text style={styles.trilhaProgress}>1 / 30 aulas</Text>
+                        <Text style={styles.trilhaProgress}>1 / 20 semanas</Text>
                     </TouchableOpacity>
 
                     {/* CARD DE INTELIGÊNCIA ARTIFICIAL */}
@@ -314,8 +326,6 @@ const styles = StyleSheet.create({
     statIcon: { fontSize: 22, marginBottom: 8 },
     statValue: { color: "#FFFFFF", fontSize: 18, fontWeight: "bold" },
     statLabel: { color: "#8E8EA9", fontSize: 11, textAlign: "center", marginTop: 4, lineHeight: 14 },
-
-    // ESTILOS ADICIONADOS PARA AS TRILHAS DO PROTÓTIPO
     trilhasContainer: { flexDirection: "row", justifyContent: "space-between", gap: 14 },
     trilhaCard: {
         flex: 1,

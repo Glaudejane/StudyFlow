@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "rea
 // 1. IMPORTAÇÃO DO SAFE AREA VIEW CORRETO (Trocou a origem para a nova biblioteca)
 import { SafeAreaView } from "react-native-safe-area-context";
 import { lessonsData } from "./lessonsData";
+// No topo do arquivo, junto com os outros imports, adicione:
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LearnScreen({ route, navigation }) {
     // Captura segura dos parâmetros da rota
@@ -28,15 +30,37 @@ export default function LearnScreen({ route, navigation }) {
         setSelectedOption(optionId);
     };
 
-    const handleCheckAnswer = () => {
+    const handleCheckAnswer = async () => {
         if (!selectedOption) {
             Alert.alert("Ops!", "Por favor, selecione uma opção antes de verificar.");
             return;
         }
         setQuizAnswered(true);
 
+        // SE ACERTOU O QUIZ
         if (selectedOption === currentLesson.quiz.correctId) {
-            Alert.alert("🎉 Parabéns!", "Você acertou e ganhou +50 XP!");
+            try {
+                // 1. Buscamos o XP atual que está salvo no celular
+                const currentXPValue = await AsyncStorage.getItem("@studyflow:xp");
+
+                // Se já existir XP, convertemos para número. Se não existir (primeira vez), começa com 0.
+                let currentXP = currentXPValue ? parseInt(currentXPValue, 10) : 0;
+
+                // 2. Somamos os 50 pontos da vitória!
+                const newXP = currentXP + 50;
+
+                // 3. Gravamos o novo total de volta no "banco de dados de bolso"
+                await AsyncStorage.setItem("@studyflow:xp", newXP.toString());
+
+                Alert.alert("🎉 Parabéns!", "Você acertou e ganhou +50 XP!");
+            } catch (error) {
+                console.log("Erro ao salvar o XP:", error);
+            }
+        } else {
+            Alert.alert(
+                "Reflexão Pedagógica",
+                "Não foi dessa vez! Dê uma olhada na explicação abaixo para entender o conceito.",
+            );
         }
     };
 
