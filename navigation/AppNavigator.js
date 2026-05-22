@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack"; // 1. IMPORTAMOS O STACK
 import { NavigationContainer } from "@react-navigation/native";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
+import WeeksScreen from "../screens/WeeksScreen";
 
 // Importação das Telas
 import HomeScreen from "../screens/HomeScreen";
@@ -89,6 +90,11 @@ export default function AppNavigator() {
                         headerTintColor: "#FFF",
                         headerTitleStyle: { fontWeight: "bold" },
                     }}
+                />
+                <Stack.Screen
+                    name="Weeks"
+                    component={WeeksScreen}
+                    options={{ title: "Cronograma", headerShown: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

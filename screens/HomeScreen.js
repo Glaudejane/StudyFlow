@@ -201,7 +201,7 @@ export default function HomeScreen({ navigation }) {
                     <TouchableOpacity
                         style={styles.trilhaCard}
                         // AGORA PASSAMOS O ID DA SEMANA DESEJADA AQUI!
-                        onPress={() => navigation.navigate("Learn", { weekId: "semana_1" })}
+                        onPress={() => navigation.navigate("Weeks")}
                         activeOpacity={0.7}
                     >
                         <View style={[styles.trilhaBadge, { backgroundColor: "#221F4D" }]}>
