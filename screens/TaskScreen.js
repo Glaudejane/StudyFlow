@@ -1,273 +1,285 @@
-import React, { useState, useEffect } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    SafeAreaView,
-    TextInput,
-    TouchableOpacity,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    ActivityIndicator,
-    Alert,
-} from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
-export default function TaskScreen() {
-    const [tasks, setTasks] = useState([]);
-    const [newTask, setNewTask] = useState("");
-    const [loading, setLoading] = useState(true);
+export default function TaskScreen({ navigation }) {
+    const [totalXp, setTotalXp] = useState(0);
 
-    // Chaves secretas do banco local
-    const ASYNC_STORAGE_KEY = "@studyflow:tasks";
-    const XP_KEY = "@studyflow:xp";
-    const LEVEL_KEY = "@studyflow:level";
+    const [missions, setMissions] = useState([
+        {
+            id: "1",
+            type: "diaria",
+            title: "Foco Inicial",
+            desc: "Conclua 1 bloco de Pomodoro hoje",
+            xpReward: 50,
+            progress: "1/1",
+            completed: true,
+            claimed: false,
+        },
+        {
+            id: "2",
+            type: "diaria",
+            title: "Cérebro Ativo",
+            desc: "Acerte 1 Quiz na trilha de Inglês",
+            xpReward: 50,
+            progress: "0/1",
+            completed: false,
+            claimed: false,
+        },
+        {
+            id: "3",
+            type: "semanal",
+            title: "Maratonista",
+            desc: "Estude 3 semanas da trilha de Inglês",
+            xpReward: 200,
+            progress: "1/3",
+            completed: false,
+            claimed: false,
+        },
+        {
+            id: "4",
+            type: "semanal",
+            title: "Inabalável",
+            desc: "Mantenha 3 dias de sequência (Streak)",
+            xpReward: 150,
+            progress: "3/3",
+            completed: true,
+            claimed: false,
+        },
+    ]);
 
-    // 1. CARREGAR DADOS AO ABRIR A TELA
-    useEffect(() => {
-        loadTasks();
+    const loadXP = useCallback(async () => {
+        try {
+            const savedXP = await AsyncStorage.getItem("@studyflow:xp");
+            if (savedXP !== null) setTotalXp(parseInt(savedXP, 10));
+        } catch (error) {
+            console.log("Erro ao carregar XP:", error);
+        }
     }, []);
 
-    // 2. SALVAR AS TAREFAS AUTOMATICAMENTE QUANDO ELAS MUDAREM
-    useEffect(() => {
-        if (!loading) {
-            saveTasks(tasks);
-        }
-    }, [tasks, loading]);
+    useFocusEffect(
+        useCallback(() => {
+            loadXP();
+        }, [loadXP]),
+    );
 
-    // Carrega as tarefas salvas
-    const loadTasks = async () => {
+    const claimReward = async (id, xpReward) => {
         try {
-            const savedTasks = await AsyncStorage.getItem(ASYNC_STORAGE_KEY);
-            if (savedTasks !== null) {
-                setTasks(JSON.parse(savedTasks));
-            } else {
-                const defaultTasks = [
-                    { id: "1", text: "📘 Murphy: Unit 1 & 2 (Present Continuous)", completed: true },
-                    { id: "2", text: "🤖 Praticar Prompts de IA em inglês", completed: false },
-                    { id: "3", text: "📘 Murphy: Unit 3 (Present Simple)", completed: false },
-                    { id: "4", text: "🗣️ Aula de conversação na semana", completed: false },
-                ];
-                setTasks(defaultTasks);
-            }
+            const currentXPValue = await AsyncStorage.getItem("@studyflow:xp");
+            let currentXP = currentXPValue ? parseInt(currentXPValue, 10) : 0;
+            const newXP = currentXP + xpReward;
+            await AsyncStorage.setItem("@studyflow:xp", newXP.toString());
+
+            setMissions((prevMissions) =>
+                prevMissions.map((mission) => (mission.id === id ? { ...mission, claimed: true } : mission)),
+            );
+            setTotalXp(newXP);
+            Alert.alert("🎉 Recompensa Resgatada!", `Sua dedicação rendeu +${xpReward} XP!`);
         } catch (error) {
-            console.log("Erro ao carregar as metas:", error);
-        } finally {
-            setLoading(false);
+            console.log("Erro ao resgatar recompensa:", error);
         }
     };
 
-    const saveTasks = async (tasksToSave) => {
-        try {
-            await AsyncStorage.setItem(ASYNC_STORAGE_KEY, JSON.stringify(tasksToSave));
-        } catch (error) {
-            console.log("Erro ao salvar as metas:", error);
-        }
-    };
+    // 🏛️ HEADER DA LISTA: AGORA AS TRILHAS DE ESTUDO FICAM NO TOPO!
+    const renderHeaderComponent = () => (
+        <View style={styles.topContainer}>
+            <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Trilhas de Estudo</Text>
+                <View style={styles.titleLine} />
+            </View>
 
-    // FUNÇÃO COMPLEMENTAR: Atualiza e calcula o XP/Nível do usuário no banco
-    const updateTaskXP = async (isGainingXP) => {
-        try {
-            // Pega o progresso atual do celular (ou começa do zero se não achar)
-            const currentXpSaved = await AsyncStorage.getItem(XP_KEY);
-            const currentLevelSaved = await AsyncStorage.getItem(LEVEL_KEY);
+            <View style={styles.trilhasContainer}>
+                {/* CARD DE INGLÊS */}
+                <TouchableOpacity
+                    style={styles.trilhaCard}
+                    onPress={() => navigation.navigate("Weeks")}
+                    activeOpacity={0.7}
+                >
+                    <View style={[styles.trilhaBadge, { backgroundColor: "#221F4D" }]}>
+                        <Text style={styles.trilhaIcon}>📚</Text>
+                    </View>
+                    <Text style={styles.trilhaTitle}>Inglês</Text>
+                    <Text style={styles.trilhaProgress}>1 / 20 sem.</Text>
+                </TouchableOpacity>
 
-            let currentXp = currentXpSaved ? parseInt(currentXpSaved) : 0;
-            let currentLevel = currentLevelSaved ? parseInt(currentLevelSaved) : 1;
+                {/* CARD DE INTELIGÊNCIA ARTIFICIAL */}
+                <TouchableOpacity
+                    style={styles.trilhaCard}
+                    onPress={() => navigation.navigate("AIWeeks")}
+                    activeOpacity={0.7}
+                >
+                    <View style={[styles.trilhaBadge, { backgroundColor: "#004B23" }]}>
+                        <Text style={styles.trilhaIcon}>🤖</Text>
+                    </View>
+                    <Text style={styles.trilhaTitle}>Inteligência{"\n"}Artificial</Text>
+                    <Text style={styles.trilhaProgress}>0 / 30 aulas</Text>
+                </TouchableOpacity>
+            </View>
 
-            const XP_BONUS = 25; // Pontos por tarefa feita
-            let newXp = isGainingXP ? currentXp + XP_BONUS : Math.max(0, currentXp - XP_BONUS);
-            let newLevel = currentLevel;
+            {/* TÍTULO DAS MISSÕES ABAIXO */}
+            <View style={[styles.sectionHeader, { marginTop: 32 }]}>
+                <Text style={styles.sectionTitle}>Minhas Missões Ativas</Text>
+                <View style={styles.titleLine} />
+            </View>
+        </View>
+    );
 
-            // Lógica Pedagógica de Evolução (sobe a cada level * 500)
-            if (isGainingXP && newXp >= currentLevel * 500) {
-                newLevel = currentLevel + 1;
-                Alert.alert("⭐ EVOLUÇÃO!", `Meta cumprida e você subiu para o Nível ${newLevel}! Fantástico! 🚀`);
-            }
-
-            // Se desmarcou a tarefa e o XP caiu abaixo do nível anterior (segurança)
-            if (!isGainingXP && currentLevel > 1 && newXp < (currentLevel - 1) * 500) {
-                newLevel = currentLevel - 1;
-            }
-
-            // Grava os novos valores recalculados
-            await AsyncStorage.setItem(XP_KEY, newXp.toString());
-            await AsyncStorage.setItem(LEVEL_KEY, newLevel.toString());
-        } catch (error) {
-            console.log("Erro ao atualizar o XP da tarefa:", error);
-        }
-    };
-
-    const addTask = () => {
-        if (newTask.trim() === "") return;
-
-        const item = {
-            id: Date.now().toString(),
-            text: newTask,
-            completed: false,
-        };
-
-        setTasks([...tasks, item]);
-        setNewTask("");
-    };
-
-    // MODIFICADO: Função inteligente que altera o estado e atualiza o XP
-    const toggleTask = (id) => {
-        const updatedTasks = tasks.map((task) => {
-            if (task.id === id) {
-                const nextCompletedState = !task.completed;
-
-                // Dispara a nossa função de pontuação: true ganha, false perde
-                updateTaskXP(nextCompletedState);
-
-                return { ...task, completed: nextCompletedState };
-            }
-            return task;
-        });
-
-        setTasks(updatedTasks);
-    };
-
-    const deleteTask = (id) => {
-        setTasks(tasks.filter((task) => task.id !== id));
-    };
+    const renderMissionItem = ({ item }) => (
+        <View style={styles.taskCard}>
+            <View style={styles.taskHeader}>
+                <View style={[styles.badge, item.type === "diaria" ? styles.badgeDiaria : styles.badgeSemanal]}>
+                    <Text style={styles.badgeText}>{item.type.toUpperCase()}</Text>
+                </View>
+                <Text style={styles.xpRewardText}>+{item.xpReward} XP</Text>
+            </View>
+            <Text style={styles.taskTitle}>{item.title}</Text>
+            <Text style={styles.taskDesc}>{item.desc}</Text>
+            <View style={styles.taskFooter}>
+                <Text style={styles.progressText}>Progresso: {item.progress}</Text>
+                {!item.completed && (
+                    <View style={[styles.statusBtn, styles.btnIncompleto]}>
+                        <Text style={styles.btnIncompletoText}>Em andamento</Text>
+                    </View>
+                )}
+                {item.completed && !item.claimed && (
+                    <TouchableOpacity
+                        style={[styles.statusBtn, styles.btnClaim]}
+                        onPress={() => claimReward(item.id, item.xpReward)}
+                    >
+                        <Feather name="gift" size={14} color="#FFF" />
+                        <Text style={styles.btnClaimText}>Resgatar XP</Text>
+                    </TouchableOpacity>
+                )}
+                {item.claimed && (
+                    <View style={[styles.statusBtn, styles.btnClaimed]}>
+                        <Feather name="check-circle" size={14} color="#8E8EA9" />
+                        <Text style={styles.btnClaimedText}>Concluído</Text>
+                    </View>
+                )}
+            </View>
+        </View>
+    );
 
     return (
         <SafeAreaView style={styles.container}>
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-                <View style={styles.content}>
-                    <Text style={styles.headerTitle}>Minhas Metas</Text>
-                    <Text style={styles.headerSubtitle}>Organize seus blocos de foco diários</Text>
-
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Adicionar nova meta de estudo..."
-                            placeholderTextColor="#8E8EA9"
-                            value={newTask}
-                            onChangeText={setNewTask}
-                        />
-                        <TouchableOpacity style={styles.addButton} onPress={addTask}>
-                            <Feather name="plus" size={24} color="#FFF" />
-                        </TouchableOpacity>
-                    </View>
-
-                    {loading ? (
-                        <ActivityIndicator size="large" color="#6C5CE7" style={{ marginTop: 40 }} />
-                    ) : (
-                        <FlatList
-                            data={tasks}
-                            keyExtractor={(item) => item.id}
-                            showsVerticalScrollIndicator={false}
-                            renderItem={({ item }) => (
-                                <View style={styles.taskCard}>
-                                    <TouchableOpacity style={styles.checkContainer} onPress={() => toggleTask(item.id)}>
-                                        <View style={[styles.checkbox, item.completed && styles.checkboxChecked]}>
-                                            {item.completed && <Feather name="check" size={14} color="#FFF" />}
-                                        </View>
-                                        <Text style={[styles.taskText, item.completed && styles.taskTextCompleted]}>
-                                            {item.text}
-                                        </Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity onPress={() => deleteTask(item.id)}>
-                                        <Feather name="trash-2" size={18} color="#E17055" />
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        />
-                    )}
+            <View style={styles.header}>
+                <View style={{ flex: 1, paddingRight: 8 }}>
+                    <Text style={styles.headerTitle}>Central de Estudos</Text>
+                    <Text style={styles.headerSubtitle}>Acesse conteúdos e missões</Text>
                 </View>
-            </KeyboardAvoidingView>
+                <View style={styles.xpBadgeContainer}>
+                    <Text style={styles.xpBadgeValue}>{totalXp} XP</Text>
+                </View>
+            </View>
+
+            <FlatList
+                data={missions}
+                keyExtractor={(item) => item.id}
+                renderItem={renderMissionItem}
+                ListHeaderComponent={renderHeaderComponent} // Renderiza Trilhas em cima
+                contentContainerStyle={styles.listContainer}
+                showsVerticalScrollIndicator={false}
+            />
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#090A1A",
-    },
-    content: {
-        flex: 1,
+    container: { flex: 1, backgroundColor: "#090A1A" },
+    header: {
         paddingHorizontal: 24,
-        paddingTop: 40,
-    },
-    headerTitle: {
-        color: "#FFF",
-        fontSize: 28,
-        fontWeight: "bold",
-    },
-    headerSubtitle: {
-        color: "#8E8EA9",
-        fontSize: 14,
-        marginTop: 4,
-        marginBottom: 24,
-    },
-    inputContainer: {
+        paddingTop: 24,
+        paddingBottom: 16,
+        borderBottomWidth: 1,
+        borderColor: "#221F4D",
         flexDirection: "row",
-        marginBottom: 24,
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: 12,
     },
-    input: {
+    headerTitle: { color: "#FFF", fontSize: 24, fontWeight: "bold" },
+    headerSubtitle: { color: "#CBD5E1", fontSize: 13, marginTop: 4 },
+    xpBadgeContainer: {
+        backgroundColor: "#221F4D",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: "#6C5CE7",
+        minWidth: 80,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    xpBadgeValue: { color: "#FFF", fontWeight: "bold", fontSize: 13 },
+    listContainer: { padding: 24, paddingBottom: 40 },
+
+    // LINHA E SEÇÃO DE TÍTULO
+    sectionHeader: { marginBottom: 16 },
+    sectionTitle: { color: "#FFFFFF", fontSize: 16, fontWeight: "bold", letterSpacing: 0.5 },
+    titleLine: { height: 2, backgroundColor: "#221F4D", width: 40, marginTop: 6, borderRadius: 1 },
+
+    topContainer: { marginBottom: 16 },
+    trilhasContainer: { flexDirection: "row", justifyContent: "space-between", gap: 14 },
+    trilhaCard: {
         flex: 1,
         backgroundColor: "#15162E",
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        color: "#FFF",
-        fontSize: 14,
+        borderRadius: 20,
+        padding: 16,
         borderWidth: 1,
         borderColor: "#221F4D",
-        height: 54,
     },
-    addButton: {
-        backgroundColor: "#6C5CE7",
-        width: 54,
-        height: 54,
+    trilhaBadge: {
+        width: 40,
+        height: 40,
         borderRadius: 12,
         justifyContent: "center",
         alignItems: "center",
-        marginLeft: 12,
+        marginBottom: 12,
     },
+    trilhaIcon: { fontSize: 18 },
+    trilhaTitle: { color: "#FFF", fontSize: 15, fontWeight: "bold", lineHeight: 20 },
+    trilhaProgress: { color: "#8E8EA9", fontSize: 11, marginTop: 8 },
+
     taskCard: {
         backgroundColor: "#15162E",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: 16,
         borderRadius: 16,
-        marginBottom: 12,
+        padding: 20,
+        marginBottom: 16,
         borderWidth: 1,
         borderColor: "#221F4D",
     },
-    checkContainer: {
+    taskHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
+    badge: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 6 },
+    badgeDiaria: { backgroundColor: "#221F4D" },
+    badgeSemanal: { backgroundColor: "#004B23" },
+    badgeText: { color: "#FFF", fontSize: 10, fontWeight: "bold" },
+    xpRewardText: { color: "#6C5CE7", fontWeight: "bold", fontSize: 14 },
+    taskTitle: { color: "#FFF", fontSize: 16, fontWeight: "bold" },
+    taskDesc: { color: "#94A3B8", fontSize: 13, marginTop: 4, lineHeight: 18 },
+    taskFooter: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: 16,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderColor: "#221F4D",
+    },
+    progressText: { color: "#8E8EA9", fontSize: 12, fontWeight: "500" },
+    statusBtn: {
         flexDirection: "row",
         alignItems: "center",
-        flex: 1,
+        gap: 6,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 8,
     },
-    checkbox: {
-        width: 22,
-        height: 22,
-        borderRadius: 6,
-        borderWidth: 2,
-        borderColor: "#6C5CE7",
-        justifyContent: "center",
-        alignItems: "center",
-        marginRight: 14,
-    },
-    checkboxChecked: {
-        backgroundColor: "#6C5CE7",
-        borderColor: "#6C5CE7",
-    },
-    taskText: {
-        color: "#FFF",
-        fontSize: 14,
-        fontWeight: "500",
-        flex: 1,
-    },
-    taskTextCompleted: {
-        color: "#8E8EA9",
-        textDecorationLine: "line-through",
-    },
+    btnIncompleto: { backgroundColor: "#221F4D" },
+    btnIncompletoText: { color: "#8E8EA9", fontSize: 12, fontWeight: "600" },
+    btnClaim: { backgroundColor: "#6C5CE7" },
+    btnClaimText: { color: "#FFF", fontSize: 12, fontWeight: "bold" },
+    btnClaimed: { backgroundColor: "#1F203B" },
+    btnClaimedText: { color: "#8E8EA9", fontSize: 12, fontWeight: "600" },
 });

@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack"; // 1. IMPORTAMOS O STACK
+import { createStackNavigator } from "@react-navigation/stack"; 
 import { NavigationContainer } from "@react-navigation/native";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
 import WeeksScreen from "../screens/WeeksScreen";
@@ -10,12 +10,13 @@ import HomeScreen from "../screens/HomeScreen";
 import TimerScreen from "../screens/TimerScreen";
 import TaskScreen from "../screens/TaskScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-import LearnScreen from "../screens/LearnScreen"; // 2. IMPORTAMOS A LEARN SCREEN
+import LearnScreen from "../screens/LearnScreen"; 
+import AIWeeksScreen from "../screens/AIWeeksScreen"; // Já estava aqui, perfeito!
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator(); // 3. INSTANCIAMOS O STACK
+const Stack = createStackNavigator(); 
 
-// 4. CRIAMOS O COMPONENTE DAS ABAS INFERIORES
+// COMPONENTE DAS ABAS INFERIORES
 function TabNavigator() {
     return (
         <Tab.Navigator
@@ -71,7 +72,7 @@ function TabNavigator() {
     );
 }
 
-// 5. O NAVEGADOR PRINCIPAL AGORA GERENCIA O FLUXO GLOBAL
+// O NAVEGADOR PRINCIPAL GERENCIA O FLUXO GLOBAL
 export default function AppNavigator() {
     return (
         <NavigationContainer>
@@ -84,17 +85,25 @@ export default function AppNavigator() {
                     name="Learn"
                     component={LearnScreen}
                     options={{
-                        headerShown: true, // Mostra a setinha de voltar automática!
+                        headerShown: true,
                         title: "Lição Interativa",
                         headerStyle: { backgroundColor: "#090A1A", borderBottomWidth: 0, shadowOpacity: 0 },
                         headerTintColor: "#FFF",
                         headerTitleStyle: { fontWeight: "bold" },
                     }}
                 />
+
                 <Stack.Screen
                     name="Weeks"
                     component={WeeksScreen}
                     options={{ title: "Cronograma", headerShown: false }}
+                />
+
+                {/* 👇 ADICIONAMOS A ROTA DE INTELIGÊNCIA ARTIFICIAL AQUI 👇 */}
+                <Stack.Screen
+                    name="AIWeeks"
+                    component={AIWeeksScreen}
+                    options={{ title: "Trilha de IA", headerShown: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>
