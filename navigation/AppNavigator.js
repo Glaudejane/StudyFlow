@@ -4,6 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
 import WeeksScreen from "../screens/WeeksScreen";
+import PythonWeeksScreen from "../screens/PythonWeeksScreen";
 
 // Importação das Telas
 import HomeScreen from "../screens/HomeScreen";
@@ -104,6 +105,12 @@ export default function AppNavigator() {
                     name="AIWeeks"
                     component={AIWeeksScreen}
                     options={{ title: "Trilha de IA", headerShown: false }}
+                />
+                {/* 👇 ADICIONAMOS A ROTA DE PYTHON AQUI 👇 */}
+                <Stack.Screen
+                    name="PythonWeeks"
+                    component={PythonWeeksScreen}
+                    options={{ title: "Trilha de Python", headerShown: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

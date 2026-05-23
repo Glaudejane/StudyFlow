@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { lessonsData } from "./lessonsData"; // Seus dados de Inglês
 // Vamos assumir que você criará o arquivo lessonsAiData.js na mesma pasta
 import { lessonsAiData } from "./lessonsAiData";
+import { lessonsPythonData } from "./lessonsPythonData";
 
 export default function LearnScreen({ route, navigation }) {
     // 📥 Captura os parâmetros dinâmicos enviados pelas telas anteriores
@@ -20,6 +21,9 @@ export default function LearnScreen({ route, navigation }) {
     if (tipoTrilha === "IA") {
         // Se veio da tela de IA, busca no arquivo de IA usando o moduloId (ex: 'm1', 'm2')
         currentLesson = lessonsAiData ? lessonsAiData[moduloId] : null;
+    } else if (tipoTrilha === "Python") {
+        // Se veio da tela de Python, busca no arquivo de Python usando o moduloId
+        currentLesson = lessonsPythonData ? lessonsPythonData[moduloId] : null;
     } else {
         // Se veio de Inglês, usa a lógica antiga por weekId
         currentLesson = lessonsData[weekId];

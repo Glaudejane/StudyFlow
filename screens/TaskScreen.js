@@ -33,7 +33,7 @@ export default function TasksScreen({ navigation }) {
             tags: ["Back-End", "Lógica"],
             corBorda: "#FFD700",
             icone: () => <FontAwesome5 name="python" size={24} color="#FFD700" />,
-            progresso: "Em breve",
+            progresso: "100%",
             rota: "PythonWeeks",
         },
         {
@@ -43,7 +43,7 @@ export default function TasksScreen({ navigation }) {
             tags: ["Projetos", "Avançado"],
             corBorda: "#00BA4A",
             icone: () => <MaterialCommunityIcons name="application-cog-outline" size={24} color="#00BA4A" />,
-            progresso: "Em breve",
+            progresso: "100%",
             rota: "AppsIAWeeks",
         },
     ];
