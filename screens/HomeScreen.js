@@ -16,15 +16,28 @@ export default function HomeScreen() {
     const progressoIngles = 5; // Ex: 1 de 20 semanas = 5%
     const progressoIA = 0;
 
-    const diasDaSemana = [
-        { id: 1, nome: "SEG", numero: "18", estudou: true, hoje: false },
-        { id: 2, nome: "TER", numero: "19", estudou: true, hoje: false },
-        { id: 3, nome: "QUA", numero: "20", estudou: false, hoje: false },
-        { id: 4, nome: "QUI", numero: "21", estudou: true, hoje: false },
-        { id: 5, nome: "SEX", numero: "22", estudou: false, hoje: true },
-        { id: 6, nome: "SÁB", numero: "23", estudou: false, hoje: false },
-        { id: 7, nome: "DOM", numero: "24", estudou: false, hoje: false },
-    ];
+    // 📆 Obtém a data de hoje do sistema
+    const hoje = new Date();
+    const diaAtualSemana = hoje.getDay(); // Retorna 0 para Domingo, 1 para Segunda, etc.
+    const diaAtualMes = hoje.getDate(); // Retorna o número do dia (ex: 23)
+
+    // Criamos uma lista com os dias da semana retroativos/futuros baseados em hoje
+    const nomesDias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+    const diasDaSemana = nomesDias.map((nome, index) => {
+        // Descobre a diferença de dias em relação ao dia atual
+        const diferenca = index - diaAtualSemana;
+        const dataDoDia = new Date(hoje);
+        dataDoDia.setDate(diaAtualMes + diferenca);
+
+        return {
+            id: index.toString(),
+            nome: nome,
+            numero: dataDoDia.getDate(), // O número correto do dia do mês
+            hoje: index === diaAtualSemana, // Define true apenas para o dia atual real
+            estudou: index < diaAtualSemana, // Exemplo: marca que estudou nos dias que já passaram
+        };
+    });
 
     const loadUserData = useCallback(async () => {
         try {
@@ -76,7 +89,7 @@ export default function HomeScreen() {
                                         style={[
                                             styles.diaNumero,
                                             dia.estudou && styles.textoEstudou,
-                                            dia.hoje && styles.textoHojeNumero,
+                                            dia.hoje && styles.textoHoje,
                                         ]}
                                     >
                                         {dia.numero}
