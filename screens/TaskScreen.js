@@ -38,15 +38,13 @@ export default function TasksScreen({ navigation }) {
         },
         {
             id: "AppsIA",
-            titulo: "Criando Apps Práticos", // 🌟 Atualizado para refletir a sua nova visão prática!
+            titulo: "Criando Apps Práticos",
             subtitulo: "Desenvolvimento mobile mão na massa para iniciantes",
             tags: ["Projetos", "Iniciante"],
             corBorda: "#00BA4A",
             icone: () => <MaterialCommunityIcons name="application-cog-outline" size={24} color="#00BA4A" />,
             progresso: "100%",
-            // 🌟 Trocamos a rota fixa por parâmetros que o seu app já aceita:
-            tipoTrilha: "BuildApps",
-            moduloId: "app1",
+            rota: "BuildApps", // 🌟 Aponta para a tela que mostra TODOS os módulos
         },
     ];
 
@@ -78,13 +76,8 @@ export default function TasksScreen({ navigation }) {
                                 disabled={isEmBreve}
                                 onPress={() => {
                                     if (trilha.id === "AppsIA") {
-                                        // 🌟 CORREÇÃO AQUI: "Learn" entra como o primeiro argumento (texto) separado do objeto!
-                                        navigation.navigate("Learn", {
-                                            tipoTrilha: trilha.tipoTrilha,
-                                            moduloId: trilha.moduloId,
-                                        });
+                                        navigation.navigate("BuildApps");
                                     } else {
-                                        // 🚀 Mantém o comportamento original padrão para as outras trilhas
                                         navigation.navigate(trilha.rota);
                                     }
                                 }}
