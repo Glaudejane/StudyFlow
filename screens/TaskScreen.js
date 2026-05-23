@@ -38,13 +38,15 @@ export default function TasksScreen({ navigation }) {
         },
         {
             id: "AppsIA",
-            titulo: "Criando Apps com IA",
-            subtitulo: "Desenvolvimento Full-Stack Integrando APIs",
-            tags: ["Projetos", "Avançado"],
+            titulo: "Criando Apps Práticos", // 🌟 Atualizado para refletir a sua nova visão prática!
+            subtitulo: "Desenvolvimento mobile mão na massa para iniciantes",
+            tags: ["Projetos", "Iniciante"],
             corBorda: "#00BA4A",
             icone: () => <MaterialCommunityIcons name="application-cog-outline" size={24} color="#00BA4A" />,
             progresso: "100%",
-            rota: "AppsIAWeeks",
+            // 🌟 Trocamos a rota fixa por parâmetros que o seu app já aceita:
+            tipoTrilha: "BuildApps",
+            moduloId: "app1",
         },
     ];
 
@@ -74,7 +76,18 @@ export default function TasksScreen({ navigation }) {
                                 ]}
                                 activeOpacity={0.7}
                                 disabled={isEmBreve}
-                                onPress={() => navigation.navigate(trilha.rota)}
+                                onPress={() => {
+                                    if (trilha.id === "AppsIA") {
+                                        // 🌟 CORREÇÃO AQUI: "Learn" entra como o primeiro argumento (texto) separado do objeto!
+                                        navigation.navigate("Learn", {
+                                            tipoTrilha: trilha.tipoTrilha,
+                                            moduloId: trilha.moduloId,
+                                        });
+                                    } else {
+                                        // 🚀 Mantém o comportamento original padrão para as outras trilhas
+                                        navigation.navigate(trilha.rota);
+                                    }
+                                }}
                             >
                                 <View style={styles.trilhaTopRow}>
                                     <View style={styles.iconContainerBg}>{trilha.icone()}</View>

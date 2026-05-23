@@ -5,6 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
 import WeeksScreen from "../screens/WeeksScreen";
 import PythonWeeksScreen from "../screens/PythonWeeksScreen";
+import BuildAppsScreen from "../screens/BuildAppsScreen";
 
 // Importação das Telas
 import HomeScreen from "../screens/HomeScreen";
@@ -111,6 +112,12 @@ export default function AppNavigator() {
                     name="PythonWeeks"
                     component={PythonWeeksScreen}
                     options={{ title: "Trilha de Python", headerShown: false }}
+                />
+                {/* 👇 ADICIONAMOS A ROTA DE BUILD APPS AQUI 👇 */}
+                <Stack.Screen
+                    name="BuildApps"
+                    component={BuildAppsScreen}
+                    options={{ title: "Criar Apps Práticos", headerShown: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>
