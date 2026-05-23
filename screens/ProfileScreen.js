@@ -206,45 +206,7 @@ export default function ProfileScreen() {
                             <Text style={styles.skillPercentValue}>30%</Text>
                         </View>
                     </View>
-
-                    {/* Bloco de Tendência Simulado (Gráfico de Linha em Design) */}
-                    <View style={styles.trendRightBox}>
-                        <Feather name="trending-up" size={20} color="#00BA4A" />
-                        <Text style={styles.trendMiniTitle}>Você evoluiu</Text>
-                        <Text style={styles.trendValueText}>+18%</Text>
-                        <Text style={styles.trendSubText}>nas últimas 2 semanas</Text>
-                        {/* Desenho do gráfico de linha com bordas */}
-                        <View style={styles.miniChartLineContainer}>
-                            <View style={styles.chartLineNode} />
-                        </View>
-                    </View>
                 </View>
-
-                {/* 7. CARD COACH IA */}
-                <View style={styles.coachIaCard}>
-                    <View style={styles.coachLeftInfo}>
-                        <View style={styles.coachAvatarIcon}>
-                            <MaterialCommunityIcons name="robot-industrial" size={20} color="#FFF" />
-                        </View>
-                        <View style={styles.coachTexts}>
-                            <View style={styles.coachBadgeRow}>
-                                <Text style={styles.coachTitleName}>Coach IA</Text>
-                                <View style={styles.betaBadge}>
-                                    <Text style={styles.betaText}>BETA</Text>
-                                </View>
-                            </View>
-                            <Text style={styles.coachDescription} numberOfLines={2}>
-                                Continue assim! Seus hábitos de estudo estão te levando longe.
-                            </Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity style={styles.conversarBtn}>
-                        <Text style={styles.conversarBtnText}>Conversar</Text>
-                        <Feather name="chevron-right" size={14} color="#FFF" />
-                    </TouchableOpacity>
-                </View>
-
-                <View style={{ height: 50 }} />
             </ScrollView>
         </SafeAreaView>
     );
