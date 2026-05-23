@@ -4,7 +4,12 @@ import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
+    // 🌟 DEFININDO OS PROGRESSOS (Evita o erro de "Property doesn't exist")
+    // Você pode começar deixando em 0 ou no valor que quiser testar!
+    const [progressoPython, setProgressoPython] = React.useState(45); // 45% concluído
+    const [progressoIngles, setProgressoIngles] = React.useState(100); // 100% concluído
+    const [progressoApps, setProgressoApps] = React.useState(10);
     const [xp, setXp] = useState(0);
     const [level, setLevel] = useState(1);
     const [streak, setStreak] = useState(1);
@@ -13,7 +18,7 @@ export default function HomeScreen() {
     const LEVEL_KEY = "@studyflow:level";
 
     // Valores fictícios de progresso para a Home exibir os indicadores
-    const progressoIngles = 5; // Ex: 1 de 20 semanas = 5%
+    //const progressoIngles = 5; // Ex: 1 de 20 semanas = 5%
     const progressoIA = 0;
 
     // 📆 Obtém a data de hoje do sistema
@@ -145,6 +150,30 @@ export default function HomeScreen() {
                     </View>
                     <View style={styles.progressTrack}>
                         <View style={[styles.progressBar, { width: `${progressoIA}%`, backgroundColor: "#004B23" }]} />
+                    </View>
+                </View>
+
+                <View style={styles.statusCard}>
+                    <View style={styles.statusInfoRow}>
+                        <Text style={styles.statusCardTitle}>🐍 PY</Text>
+                        <Text style={styles.statusPercentage}>{progressoPython}%</Text>
+                    </View>
+                    <View style={styles.progressTrack}>
+                        <View
+                            style={[styles.progressBar, { width: `${progressoPython}%`, backgroundColor: "#004B23" }]}
+                        />
+                    </View>
+                </View>
+
+                <View style={styles.statusCard}>
+                    <View style={styles.statusInfoRow}>
+                        <Text style={styles.statusCardTitle}>📱 Apps</Text>
+                        <Text style={styles.statusPercentage}>{progressoApps}%</Text>
+                    </View>
+                    <View style={styles.progressTrack}>
+                        <View
+                            style={[styles.progressBar, { width: `${progressoApps}%`, backgroundColor: "#004B23" }]}
+                        />
                     </View>
                 </View>
 
