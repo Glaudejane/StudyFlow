@@ -17,15 +17,23 @@ export default function TimerScreen({ navigation }) {
     lofiPlayer.loop = true;
     lofiPlayer.volume = 0.4; // Volume confortável
 
-    // 1. CORAÇÃO DO CRONÔMETRO
+    // 1. CORAÇÃO DO CRONÔMETRO (só cuida de contar os segundos)
     useEffect(() => {
-        let interval = null;
-        if (isActive && secondsLeft > 0) {
-            interval = setInterval(() => {
-                setSecondsLeft((seconds) => seconds - 1);
-            }, 1000);
-        } else if (secondsLeft === 0) {
-            setIsActive(false);
+        if (!isActive || secondsLeft <= 0) return;
+
+        const interval = setInterval(() => {
+            setSecondsLeft((seconds) => seconds - 1);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [isActive, secondsLeft]);
+
+    // 2. QUANDO O TEMPO ZERA (só vigia secondsLeft, evitando disparo duplo)
+    useEffect(() => {
+        if (secondsLeft !== 0) return;
+
+        setIsActive((wasActive) => {
+            if (!wasActive) return false; // já tinha sido tratado, não faz nada de novo
 
             // 🔔 Toca o alarme moderno!
             alarmPlayer.play();
@@ -36,10 +44,10 @@ export default function TimerScreen({ navigation }) {
                     ? "Excelente trabalho! Hora de descansar um pouco."
                     : "Hora de voltar ao fluxo de foco!",
             );
-        }
-        return () => clearInterval(interval);
-    }, [isActive, secondsLeft]);
 
+            return false;
+        });
+    }, [secondsLeft]);
     const formatTime = () => {
         const mins = Math.floor(secondsLeft / 60);
         const secs = secondsLeft % 60;
@@ -148,6 +156,7 @@ const styles = StyleSheet.create({
     backButton: { paddingRight: 20 },
     backText: { color: "#FFFFFF", fontSize: 24 },
     headerTitle: { color: "#FFFFFF", fontSize: 18, fontWeight: "600" },
+    settingsButton: { paddingLeft: 20 },
     settingsText: { fontSize: 20 },
     tabContainer: { flexDirection: "row", backgroundColor: "#15162E", borderRadius: 25, padding: 4, marginBottom: 40 },
     tab: { flex: 1, paddingVertical: 10, alignItems: "center", borderRadius: 21 },

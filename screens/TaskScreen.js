@@ -87,7 +87,7 @@ export default function TasksScreen({ navigation }) {
 
                                     <View style={styles.trilhaTexts}>
                                         <Text style={styles.trilhaTitleText}>{trilha.titulo}</Text>
-                                        <Text style={styles.trilhaSSubtitulo} numberOfLines={1}>
+                                        <Text style={styles.trilhaSub} numberOfLines={1}>
                                             {trilha.subtitulo}
                                         </Text>
                                     </View>

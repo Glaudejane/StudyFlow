@@ -11,11 +11,12 @@ export default function HomeScreen({ navigation }) {
     const [progressoIngles, setProgressoIngles] = React.useState(100); // 100% concluído
     const [progressoApps, setProgressoApps] = React.useState(10);
     const [xp, setXp] = useState(0);
-    const [level, setLevel] = useState(1);
     const [streak, setStreak] = useState(1);
 
     const XP_KEY = "@studyflow:xp";
-    const LEVEL_KEY = "@studyflow:level";
+
+    // 🏆 O nível é sempre CALCULADO a partir do XP — nunca fica desatualizado
+    const level = Math.floor(xp / 100) + 1;
 
     // Valores fictícios de progresso para a Home exibir os indicadores
     //const progressoIngles = 5; // Ex: 1 de 20 semanas = 5%
@@ -47,10 +48,7 @@ export default function HomeScreen({ navigation }) {
     const loadUserData = useCallback(async () => {
         try {
             const savedXp = await AsyncStorage.getItem(XP_KEY);
-            const savedLevel = await AsyncStorage.getItem(LEVEL_KEY);
-
             if (savedXp !== null) setXp(parseInt(savedXp, 10));
-            if (savedLevel !== null) setLevel(parseInt(savedLevel, 10));
         } catch (error) {
             console.log("Erro ao carregar dados do usuário:", error);
         }
