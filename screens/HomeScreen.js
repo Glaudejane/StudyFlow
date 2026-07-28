@@ -14,6 +14,8 @@ export default function HomeScreen({ navigation }) {
     const [streak, setStreak] = useState(1);
 
     const XP_KEY = "@studyflow:xp";
+    const STREAK_KEY = "@studyflow:streak";
+    const LAST_ACTIVE_KEY = "@studyflow:lastActive";
 
     // 🏆 O nível é sempre CALCULADO a partir do XP — nunca fica desatualizado
     const level = Math.floor(xp / 100) + 1;
@@ -45,15 +47,35 @@ export default function HomeScreen({ navigation }) {
         };
     });
 
-    const loadUserData = useCallback(async () => {
-        try {
-            const savedXp = await AsyncStorage.getItem(XP_KEY);
-            if (savedXp !== null) setXp(parseInt(savedXp, 10));
-        } catch (error) {
-            console.log("Erro ao carregar dados do usuário:", error);
-        }
-    }, []);
+   const loadUserData = useCallback(async () => {
+       try {
+           const savedXp = await AsyncStorage.getItem(XP_KEY);
+           if (savedXp !== null) setXp(parseInt(savedXp, 10));
 
+           // 🔥 Calcula o streak comparando a data de hoje com a última vez que o app foi usado
+           const hojeStr = new Date().toDateString();
+           const ultimaData = await AsyncStorage.getItem(LAST_ACTIVE_KEY);
+           const streakSalvo = await AsyncStorage.getItem(STREAK_KEY);
+           let novoStreak = streakSalvo !== null ? parseInt(streakSalvo, 10) : 0;
+
+           if (ultimaData !== hojeStr) {
+               // Ainda não contabilizamos hoje — vamos verificar se a sequência continua
+               const ontem = new Date();
+               ontem.setDate(ontem.getDate() - 1);
+               const ontemStr = ontem.toDateString();
+
+               novoStreak = ultimaData === ontemStr ? novoStreak + 1 : 1;
+
+               await AsyncStorage.setItem(STREAK_KEY, novoStreak.toString());
+               await AsyncStorage.setItem(LAST_ACTIVE_KEY, hojeStr);
+           }
+
+           setStreak(novoStreak || 1);
+       } catch (error) {
+           console.log("Erro ao carregar dados do usuário:", error);
+       }
+   }, []);
+    
     useFocusEffect(
         useCallback(() => {
             loadUserData();

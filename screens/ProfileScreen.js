@@ -7,7 +7,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 export default function ProfileScreen() {
     const [xp, setXp] = useState(725); // Valor padrão até o real ser carregado
-    const [streak, setStreak] = useState(12);
+    const [streak, setStreak] = useState(1);
 
     // 🏆 O nível é sempre CALCULADO a partir do XP — nunca fica desatualizado
     const level = Math.floor(xp / 100) + 1;
@@ -16,6 +16,9 @@ export default function ProfileScreen() {
         try {
             const savedXp = await AsyncStorage.getItem("@studyflow:xp");
             if (savedXp !== null) setXp(parseInt(savedXp, 10));
+            
+            const savedStreak = await AsyncStorage.getItem("@studyflow:streak");
+            if (savedStreak !== null) setStreak(parseInt(savedStreak, 10));
         } catch (error) {
             console.log("Erro ao carregar dados do perfil:", error);
         }
