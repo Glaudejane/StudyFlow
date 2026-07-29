@@ -12,11 +12,14 @@ export default function ProfileScreen() {
     // 🏆 O nível é sempre CALCULADO a partir do XP — nunca fica desatualizado
     const level = Math.floor(xp / 100) + 1;
 
+    // 📊 Quanto de XP já foi ganho DENTRO do nível atual (sempre de 0 a 99)
+    const xpNoNivelAtual = xp % 100;
+
     const loadProfileData = useCallback(async () => {
         try {
             const savedXp = await AsyncStorage.getItem("@studyflow:xp");
             if (savedXp !== null) setXp(parseInt(savedXp, 10));
-            
+
             const savedStreak = await AsyncStorage.getItem("@studyflow:streak");
             if (savedStreak !== null) setStreak(parseInt(savedStreak, 10));
         } catch (error) {
@@ -72,19 +75,19 @@ export default function ProfileScreen() {
                         <View style={styles.levelTexts}>
                             <Text style={styles.levelTitle}>Estudante Focado 👑</Text>
                             <Text style={styles.levelSubtitle}>Você está no caminho certo!</Text>
-                            <Text style={styles.xpProgressNumbers}>850 / 1.000 XP para o próximo nível</Text>
+                            <Text style={styles.xpProgressNumbers}>{xpNoNivelAtual} / 100 XP para o próximo nível</Text>
                         </View>
 
                         {/* Simulação do Círculo de 82% */}
                         <View style={styles.circularProgressSimulated}>
-                            <Text style={styles.circularPercentText}>82%</Text>
+                            <Text style={styles.circularPercentText}>{xpNoNivelAtual}%</Text>
                         </View>
                     </View>
 
                     {/* Barra de progresso horizontal roxa */}
                     <View style={styles.horizontalTrackContainer}>
-                        <View style={[styles.horizontalBarFill, { width: "82%" }]} />
-                        <Text style={styles.horizontalPercentLabel}>82%</Text>
+                        <View style={[styles.horizontalBarFill, { width: `${xpNoNivelAtual}%` }]} />
+                        <Text style={styles.horizontalPercentLabel}>{xpNoNivelAtual}%</Text>
                     </View>
 
                     <TouchableOpacity style={styles.continueButton} activeOpacity={0.8}>
@@ -225,8 +228,7 @@ const styles = StyleSheet.create({
         width: 76,
         height: 76,
         borderRadius: 38,
-        borderVerticalWidth: 2,
-        borderHorizontalWidth: 2,
+        borderWidth: 2,
         borderColor: "#6C5CE7",
         justifyContent: "center",
         alignItems: "center",
