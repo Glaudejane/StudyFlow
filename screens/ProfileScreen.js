@@ -5,13 +5,142 @@ import { Feather, FontAwesome5, MaterialCommunityIcons, Ionicons } from "@expo/v
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 
+// 💬 Banco de mensagens motivacionais — uma é escolhida automaticamente por dia
+const MENSAGENS_DO_DIA = [
+    {
+        frase: "Seu futuro está sendo construído agora.",
+        complemento: "Acredite no processo, cada pequeno passo conta.",
+    },
+    {
+        frase: "Constância vence intensidade.",
+        complemento: "Um pouco todo dia é melhor do que muito de vez em quando.",
+    },
+    {
+        frase: "Você não precisa ser perfeita, só consistente.",
+        complemento: "Cada lição concluída é um tijolo na sua nova carreira.",
+    },
+    {
+        frase: "O erro de hoje é o aprendizado de amanhã.",
+        complemento: "Programadoras experientes também erram — a diferença é persistir.",
+    },
+    {
+        frase: "Progresso não é sempre visível, mas é real.",
+        complemento: "Seu cérebro está se reorganizando a cada estudo, mesmo sem perceber.",
+    },
+    {
+        frase: "Comece onde você está, com o que você tem.",
+        complemento: "Ninguém começa sabendo tudo — todo mundo começa em algum lugar.",
+    },
+    {
+        frase: "Você está mais perto hoje do que ontem.",
+        complemento: "Olhe para trás de vez em quando — o caminho já percorrido importa.",
+    },
+
+    
+    {
+        frase: "Mudar de carreira é um ato de coragem.",
+        complemento: "Cada linha de código aprendida hoje constrói o seu novo amanhã."
+    },
+    {
+        frase: "Ninguém nasce sabendo programar.",
+        complemento: "O domínio vem da prática diária, da paciência e da persistência."
+    },
+    {
+        frase: "Seu histórico traz uma bagagem única.",
+        complemento: "Sua experiência de vida é o seu grande diferencial na tecnologia."
+    },
+    {
+        frase: "Um erro no código é apenas um aprendizado.",
+        complemento: "Corrigir bugs faz parte da jornada de qualquer grande desenvolvedor."
+    },
+    {
+        frase: "Sua idade ou trajetória anterior não definem o seu limite.",
+        complemento: "A tecnologia acolhe quem tem sede de aprender."
+    },
+    {
+        frase: "Não se compare com quem já está no mercado há anos.",
+        complemento: "Compare o seu progresso de hoje com quem você era ontem."
+    },
+    {
+        frase: "A consistência supera o talento.",
+        complemento: "Estudar um pouco todos os dias levará você mais longe do que imagina."
+    },
+    {
+        frase: "Aprender algo novo exige sair da zona de conforto.",
+        complemento: "Sinta orgulho de ter dado o primeiro passo rumo à transformação."
+    },
+    {
+        frase: "Grandes projetos começam com um simples 'Hello World'.",
+        complemento: "Valorize o início e comemore cada pequena conquista."
+    },
+    {
+        frase: "O mercado de tecnologia precisa da sua perspectiva.",
+        complemento: "A diversidade de vivências enriquece a criação de soluções."
+    },
+    {
+        frase: "A frustração de hoje é a lógica compreendida de amanhã.",
+        complemento: "Não desista quando algo parecer difícil; seu cérebro está se adaptando."
+    },
+    {
+        frase: "Aprender a programar é aprender a pensar de uma nova forma.",
+        complemento: "Dê tempo a si mesmo para absorver essa nova linguagem."
+    },
+    {
+        frase: "A síndrome do impostor tenta nos fazer parar.",
+        complemento: "Lembre-se de quanta coisa você já superou para chegar até aqui."
+    },
+    {
+        frase: "A tecnologia muda rápido, mas a sua capacidade de aprender é infinita.",
+        complemento: "Aja como um eterno aprendiz e as portas se abrirão."
+    },
+    {
+        frase: "Reinventar-se é dar uma nova chance aos seus sonhos.",
+        complemento: "Você está exatamente onde precisa estar para recomeçar."
+    },
+    {
+        frase: "Cada conceito absorvido é um degrau rumo à sua independência.",
+        complemento: "Continue focado no seu objetivo final."
+    },
+    {
+        frase: "A dúvida faz parte da transição.",
+        complemento: "Mantenha a fé na sua escolha e no impacto que ela trará."
+    },
+    {
+        frase: "Sua dedicação atual determinará as suas oportunidades futuras.",
+        complemento: "Semeie hoje com disciplina para colher o sucesso amanhã."
+    },
+    {
+        frase: "Desafios técnicos são apenas quebra-cabeças esperando por uma solução.",
+        complemento: "Respire fundo, analise com calma e siga em frente."
+    },
+    {
+        frase: "Você não está começando do zero, está começando da experiência.",
+        complemento: "Tudo o que você viveu até hoje soma à sua inteligência emocional."
+    },
+    {
+        frase: "O conhecimento é o único bem que ninguém pode te tirar.",
+        complemento: "Invista tempo em você e no seu desenvolvimento contínuo."
+    },
+    {
+        frase: "Conectar lógica e criatividade é a chave do futuro.",
+        complemento: "Confie na sua capacidade de criar coisas incríveis através da tecnologia."
+    },
+    {
+        frase: "A jornada de reinvenção é sua e o ritmo também.",
+        complemento: "Respeite o seu tempo, mas nunca pare de caminhar."
+    }
+
+];
+
 export default function ProfileScreen() {
     const [xp, setXp] = useState(725); // Valor padrão até o real ser carregado
     const [streak, setStreak] = useState(1);
 
-    // 🏆 O nível é sempre CALCULADO a partir do XP — nunca fica desatualizado
     const level = Math.floor(xp / 100) + 1;
 
+    // 📅 Escolhe uma mensagem diferente a cada dia, de forma previsível
+    const diaDoAno = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    const mensagemDeHoje = MENSAGENS_DO_DIA[diaDoAno % MENSAGENS_DO_DIA.length];
     // 📊 Quanto de XP já foi ganho DENTRO do nível atual (sempre de 0 a 99)
     const xpNoNivelAtual = xp % 100;
 
@@ -103,8 +232,8 @@ export default function ProfileScreen() {
                     </View>
                     <View style={styles.messageContent}>
                         <Text style={styles.messageTag}>✨ Mensagem do dia</Text>
-                        <Text style={styles.messageBody}>"Seu futuro está sendo construído agora."</Text>
-                        <Text style={styles.messageSubBody}>Acredite no processo, cada pequeno passo conta.</Text>
+                        <Text style={styles.messageBody}>"{mensagemDeHoje.frase}"</Text>
+                        <Text style={styles.messageSubBody}>{mensagemDeHoje.complemento}</Text>
                     </View>
                     <FontAwesome5 name="star" size={24} color="#FFD700" style={styles.starFloating} />
                 </View>
