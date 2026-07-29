@@ -544,13 +544,13 @@ const styles = StyleSheet.create({
     badgeItemLocked: { borderColor: "#41415C", opacity: 0.6 },
     badgeItemName: {
         color: "#FFF",
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: "bold",
         textAlign: "center",
         marginTop: 8,
         lineHeight: 15,
     },
-    badgeStatusText: { fontSize: 11, fontWeight: "bold", marginTop: 4 },
+    badgeStatusText: { fontSize: 14, fontWeight: "bold", marginTop: 4 },
 
     // 6. MEU FUTURO PROGRESSO
     objSubText: { color: "#8E8EA9", fontSize: 12, marginTop: -8, marginBottom: 12 },
