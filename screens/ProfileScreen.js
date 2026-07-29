@@ -144,28 +144,48 @@ export default function ProfileScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalBadges}>
                     <View style={[styles.badgeItem, { borderColor: "#FFD700" }]}>
                         <FontAwesome5 name="trophy" size={20} color="#FFD700" />
-                        <Text style={styles.badgeItemName}>Primeira{"\n"}semana</Text>
-                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]}>Concluída</Text>
+                        <Text style={styles.badgeItemName} allowFontScaling={false}>
+                            Primeira{"\n"}semana
+                        </Text>
+                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>
+                            Concluída
+                        </Text>
                     </View>
                     <View style={[styles.badgeItem, { borderColor: "#A855F7" }]}>
                         <MaterialCommunityIcons name="bolt" size={22} color="#A855F7" />
-                        <Text style={styles.badgeItemName}>10h de foco</Text>
-                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]}>Concluída</Text>
+                        <Text style={styles.badgeItemName} allowFontScaling={false}>
+                            10h de foco
+                        </Text>
+                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>
+                            Concluída
+                        </Text>
                     </View>
                     <View style={[styles.badgeItem, { borderColor: "#3B82F6" }]}>
                         <FontAwesome5 name="brain" size={20} color="#3B82F6" />
-                        <Text style={styles.badgeItemName}>Mestre da{"\n"}lógica</Text>
-                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]}>Concluída</Text>
+                        <Text style={styles.badgeItemName} allowFontScaling={false}>
+                            Mestre da{"\n"}lógica
+                        </Text>
+                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>
+                            Concluída
+                        </Text>
                     </View>
                     <View style={[styles.badgeItem, { borderColor: "#FF7A00" }]}>
                         <FontAwesome5 name="rocket" size={18} color="#FF7A00" />
-                        <Text style={styles.badgeItemName}>Início em IA</Text>
-                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]}>Concluída</Text>
+                        <Text style={styles.badgeItemName} allowFontScaling={false}>
+                            Início em IA
+                        </Text>
+                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>
+                            Concluída
+                        </Text>
                     </View>
                     <View style={[styles.badgeItem, styles.badgeItemLocked]}>
                         <Feather name="lock" size={18} color="#41415C" />
-                        <Text style={[styles.badgeItemName, { color: "#8E8EA9" }]}>30 dias de{"\n"}foco</Text>
-                        <Text style={[styles.badgeStatusText, { color: "#8E8EA9" }]}>0 / 30</Text>
+                        <Text style={[styles.badgeItemName, { color: "#8E8EA9" }]} allowFontScaling={false}>
+                            30 dias de{"\n"}foco
+                        </Text>
+                        <Text style={[styles.badgeStatusText, { color: "#8E8EA9" }]} allowFontScaling={false}>
+                            0 / 30
+                        </Text>
                     </View>
                 </ScrollView>
 
@@ -381,26 +401,27 @@ const styles = StyleSheet.create({
     verTodasText: { color: "#A855F7", fontSize: 12, fontWeight: "600" },
     horizontalBadges: { flexDirection: "row", marginBottom: 20 },
     badgeItem: {
-        width: 88,
-        height: 100,
+        width: 96,
+        minHeight: 108,
         backgroundColor: "#15162E",
         borderRadius: 16,
         borderWidth: 1.5,
-        padding: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
         alignItems: "center",
         justifyContent: "center",
         marginRight: 10,
     },
-    badgeItemLocked: { borderColor: "#221F4D", opacity: 0.4 },
+    badgeItemLocked: { borderColor: "#41415C", opacity: 0.6 },
     badgeItemName: {
         color: "#FFF",
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: "bold",
         textAlign: "center",
         marginTop: 8,
-        lineHeight: 12,
+        lineHeight: 15,
     },
-    badgeStatusText: { fontSize: 9, fontWeight: "bold", marginTop: 4 },
+    badgeStatusText: { fontSize: 11, fontWeight: "bold", marginTop: 4 },
 
     // 6. MEU FUTURO PROGRESSO
     objSubText: { color: "#8E8EA9", fontSize: 12, marginTop: -8, marginBottom: 12 },
