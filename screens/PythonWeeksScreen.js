@@ -3,9 +3,8 @@ import React from "react";
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, FlatList } from "react-native";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 
-export default function PythonWeeksScreen({ navigation }) {
-    // 🐍 MÓDULOS DE PYTHON (Pedagógico e 100% Liberado para Testes)
-    const modulosPython = [
+// 🐍 MÓDULOS DE PYTHON (Pedagógico e 100% Liberado para Testes)
+    export const modulosPython = [
         {
             id: "py1",
             numero: "MÓDULO 1",
@@ -40,6 +39,7 @@ export default function PythonWeeksScreen({ navigation }) {
         },
     ];
 
+export default function PythonWeeksScreen({ navigation }) {
     const renderModulo = ({ item, index }) => {
         return (
             <View style={styles.timelineRow}>

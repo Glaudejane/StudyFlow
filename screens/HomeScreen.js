@@ -1,3 +1,7 @@
+import { semanasIngles } from "./WeeksScreen";
+import { modulosPython } from "./PythonWeeksScreen";
+import { modulosIA } from "./AIWeeksScreen";
+import { projetos } from "./BuildAppsScreen";
 import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
@@ -19,14 +23,13 @@ export default function HomeScreen({ navigation }) {
     const LAST_ACTIVE_KEY = "@studyflow:lastActive";
     const COMPLETED_LESSONS_KEY = "@studyflow:completedLessons";
 
-    // 📊 Quantas lições cada trilha tem disponíveis hoje na tela
+    // 📊 Total de lições calculado automaticamente a partir da lista real de cada trilha
     const TOTAL_LICOES = {
-        Ingles: 4,
-        Python: 4,
-        IA: 6,
-        BuildApps: 6,
+        Ingles: semanasIngles.length,
+        Python: modulosPython.length,
+        IA: modulosIA.length,
+        BuildApps: projetos.length,
     };
-
     // 🏆 O nível é sempre CALCULADO a partir do XP — nunca fica desatualizado
     const level = Math.floor(xp / 100) + 1;
 

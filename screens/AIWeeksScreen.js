@@ -3,9 +3,8 @@ import React from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, FlatList } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 
-export default function AIWeeksScreen({ navigation }) {
-    // 🗺️ ESTRUTURAÇÃO PEDAGÓGICA DOS MÓDULOS DE IA
-    const modulosIA = [
+// 🗺️ ESTRUTURAÇÃO PEDAGÓGICA DOS MÓDULOS DE IA
+    export const modulosIA = [
         {
             id: "m1",
             numero: "MÓDULO 1",
@@ -61,6 +60,7 @@ export default function AIWeeksScreen({ navigation }) {
         },
     ];
 
+export default function AIWeeksScreen({ navigation }) {
     const renderModulo = ({ item, index }) => {
         const isBloqueado = item.status === "bloqueado";
 

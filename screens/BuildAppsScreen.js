@@ -3,9 +3,8 @@ import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from "react-native";
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 
-export default function BuildAppsScreen({ navigation }) {
-    // Lista dos projetos práticos com seus respectivos IDs do banco de dados
-    const projetos = [
+// Lista dos projetos práticos com seus respectivos IDs do banco de dados
+    export const projetos = [
         {
             id: "app1",
             title: "Botões Estilizados",
@@ -19,6 +18,7 @@ export default function BuildAppsScreen({ navigation }) {
         { id: "app6", title: "Jogo Matemático", icon: "gamepad", desc: "Gamificação e números aleatórios." },
     ];
 
+export default function BuildAppsScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             {/* HEADER SUPERIOR */}
