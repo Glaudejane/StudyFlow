@@ -7,22 +7,31 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function HomeScreen({ navigation }) {
     // 🌟 DEFININDO OS PROGRESSOS (Evita o erro de "Property doesn't exist")
     // Você pode começar deixando em 0 ou no valor que quiser testar!
-    const [progressoPython, setProgressoPython] = React.useState(45); // 45% concluído
-    const [progressoIngles, setProgressoIngles] = React.useState(100); // 100% concluído
-    const [progressoApps, setProgressoApps] = React.useState(10);
+    const [progressoPython, setProgressoPython] = React.useState(0);
+    const [progressoIngles, setProgressoIngles] = React.useState(0);
+    const [progressoApps, setProgressoApps] = React.useState(0);
+    const [progressoIA, setProgressoIA] = React.useState(0);
     const [xp, setXp] = useState(0);
     const [streak, setStreak] = useState(1);
 
     const XP_KEY = "@studyflow:xp";
     const STREAK_KEY = "@studyflow:streak";
     const LAST_ACTIVE_KEY = "@studyflow:lastActive";
+    const COMPLETED_LESSONS_KEY = "@studyflow:completedLessons";
+
+    // 📊 Quantas lições cada trilha tem disponíveis hoje na tela
+    const TOTAL_LICOES = {
+        Ingles: 4,
+        Python: 4,
+        IA: 6,
+        BuildApps: 6,
+    };
 
     // 🏆 O nível é sempre CALCULADO a partir do XP — nunca fica desatualizado
     const level = Math.floor(xp / 100) + 1;
 
     // Valores fictícios de progresso para a Home exibir os indicadores
     //const progressoIngles = 5; // Ex: 1 de 20 semanas = 5%
-    const progressoIA = 0;
 
     // 📆 Obtém a data de hoje do sistema
     const hoje = new Date();
@@ -47,35 +56,47 @@ export default function HomeScreen({ navigation }) {
         };
     });
 
-   const loadUserData = useCallback(async () => {
-       try {
-           const savedXp = await AsyncStorage.getItem(XP_KEY);
-           if (savedXp !== null) setXp(parseInt(savedXp, 10));
+    const loadUserData = useCallback(async () => {
+        try {
+            const savedXp = await AsyncStorage.getItem(XP_KEY);
+            if (savedXp !== null) setXp(parseInt(savedXp, 10));
 
-           // 🔥 Calcula o streak comparando a data de hoje com a última vez que o app foi usado
-           const hojeStr = new Date().toDateString();
-           const ultimaData = await AsyncStorage.getItem(LAST_ACTIVE_KEY);
-           const streakSalvo = await AsyncStorage.getItem(STREAK_KEY);
-           let novoStreak = streakSalvo !== null ? parseInt(streakSalvo, 10) : 0;
+            // 🔥 Calcula o streak comparando a data de hoje com a última vez que o app foi usado
+            const hojeStr = new Date().toDateString();
+            const ultimaData = await AsyncStorage.getItem(LAST_ACTIVE_KEY);
+            const streakSalvo = await AsyncStorage.getItem(STREAK_KEY);
+            let novoStreak = streakSalvo !== null ? parseInt(streakSalvo, 10) : 0;
 
-           if (ultimaData !== hojeStr) {
-               // Ainda não contabilizamos hoje — vamos verificar se a sequência continua
-               const ontem = new Date();
-               ontem.setDate(ontem.getDate() - 1);
-               const ontemStr = ontem.toDateString();
+            if (ultimaData !== hojeStr) {
+                // Ainda não contabilizamos hoje — vamos verificar se a sequência continua
+                const ontem = new Date();
+                ontem.setDate(ontem.getDate() - 1);
+                const ontemStr = ontem.toDateString();
 
-               novoStreak = ultimaData === ontemStr ? novoStreak + 1 : 1;
+                novoStreak = ultimaData === ontemStr ? novoStreak + 1 : 1;
 
-               await AsyncStorage.setItem(STREAK_KEY, novoStreak.toString());
-               await AsyncStorage.setItem(LAST_ACTIVE_KEY, hojeStr);
-           }
+                await AsyncStorage.setItem(STREAK_KEY, novoStreak.toString());
+                await AsyncStorage.setItem(LAST_ACTIVE_KEY, hojeStr);
+            }
 
-           setStreak(novoStreak || 1);
-       } catch (error) {
-           console.log("Erro ao carregar dados do usuário:", error);
-       }
-   }, []);
-    
+            setStreak(novoStreak || 1);
+            // 📈 Calcula o progresso real de cada trilha, a partir das lições concluídas
+            const savedLicoes = await AsyncStorage.getItem(COMPLETED_LESSONS_KEY);
+            const licoesConcluidas = savedLicoes ? JSON.parse(savedLicoes) : [];
+
+            const contarPorTrilha = (trilha) => licoesConcluidas.filter((id) => id.startsWith(`${trilha}:`)).length;
+
+            const calcularPercentual = (trilha) => Math.round((contarPorTrilha(trilha) / TOTAL_LICOES[trilha]) * 100);
+
+            setProgressoIngles(calcularPercentual("Ingles"));
+            setProgressoPython(calcularPercentual("Python"));
+            setProgressoIA(calcularPercentual("IA"));
+            setProgressoApps(calcularPercentual("BuildApps"));
+        } catch (error) {
+            console.log("Erro ao carregar dados do usuário:", error);
+        }
+    }, []);
+
     useFocusEffect(
         useCallback(() => {
             loadUserData();

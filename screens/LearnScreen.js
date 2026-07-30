@@ -59,31 +59,41 @@ export default function LearnScreen({ route, navigation }) {
         setSelectedOption(optionId);
     };
 
-    const handleCheckAnswer = async () => {
-        if (!selectedOption) {
-            Alert.alert("Ops!", "Por favor, selecione uma opção antes de verificar.");
-            return;
-        }
-        setQuizAnswered(true);
+  const handleCheckAnswer = async () => {
+      if (!selectedOption) {
+          Alert.alert("Ops!", "Por favor, selecione uma opção antes de verificar.");
+          return;
+      }
+      setQuizAnswered(true);
 
-        if (selectedOption === currentLesson.quiz.correctId) {
-            try {
-                const currentXPValue = await AsyncStorage.getItem("@studyflow:xp");
-                let currentXP = currentXPValue ? parseInt(currentXPValue, 10) : 0;
-                const newXP = currentXP + 50;
-                await AsyncStorage.setItem("@studyflow:xp", newXP.toString());
+      if (selectedOption === currentLesson.quiz.correctId) {
+          try {
+              const currentXPValue = await AsyncStorage.getItem("@studyflow:xp");
+              let currentXP = currentXPValue ? parseInt(currentXPValue, 10) : 0;
+              const newXP = currentXP + 50;
+              await AsyncStorage.setItem("@studyflow:xp", newXP.toString());
 
-                Alert.alert("🎉 Parabéns!", "Você acertou e ganhou +50 XP!");
-            } catch (error) {
-                console.log("Erro ao salvar o XP:", error);
-            }
-        } else {
-            Alert.alert(
-                "Reflexão Pedagógica",
-                "Não foi dessa vez! Dê uma olhada na explicação abaixo para entender o conceito.",
-            );
-        }
-    };
+              // 🏁 Marca ESSA lição específica como concluída (ex: "Python:py1")
+              const idDaLicao = `${tipoTrilha}:${tipoTrilha === "Ingles" ? weekId : moduloId}`;
+              const salvasStr = await AsyncStorage.getItem("@studyflow:completedLessons");
+              const licoesConcluidas = salvasStr ? JSON.parse(salvasStr) : [];
+
+              if (!licoesConcluidas.includes(idDaLicao)) {
+                  licoesConcluidas.push(idDaLicao);
+                  await AsyncStorage.setItem("@studyflow:completedLessons", JSON.stringify(licoesConcluidas));
+              }
+
+              Alert.alert("🎉 Parabéns!", "Você acertou e ganhou +50 XP!");
+          } catch (error) {
+              console.log("Erro ao salvar o XP:", error);
+          }
+      } else {
+          Alert.alert(
+              "Reflexão Pedagógica",
+              "Não foi dessa vez! Dê uma olhada na explicação abaixo para entender o conceito.",
+          );
+      }
+  };
 
     const handleResetQuiz = () => {
         setSelectedOption(null);
