@@ -271,15 +271,16 @@ export default function ProfileScreen() {
                         <Text style={styles.quadLabel}>Tempo total estudado</Text>
                     </View>
                     <View style={styles.quadBox}>
+                        <MaterialCommunityIcons name="fire" size={20} color="#FF5C5C" style={styles.quadIcon} />
+                        <Text style={styles.quadValue}>{streak}</Text>
+                        <Text style={styles.quadLabel}>Sequência atual</Text>
+                    </View>
+                    <View style={styles.quadBox}>
                         <Feather name="check-circle" size={18} color="#00BA4A" style={styles.quadIcon} />
                         <Text style={styles.quadValue}>{trilhasConcluidas}/4</Text>
                         <Text style={styles.quadLabel}>Trilhas concluídas</Text>
                     </View>
-                    <View style={styles.quadBox}>
-                        <Feather name="check-circle" size={18} color="#00BA4A" style={styles.quadIcon} />
-                        <Text style={styles.quadValue}>8</Text>
-                        <Text style={styles.quadLabel}>Trilhas concluídas</Text>
-                    </View>
+
                     <View style={styles.quadBox}>
                         <Feather name="award" size={18} color="#FFD700" style={styles.quadIcon} />
                         <Text style={styles.quadValue}>Top 18%</Text>
