@@ -1,8 +1,13 @@
 // screens/TasksScreen.js
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
 import { Feather, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { semanasIngles } from "./WeeksScreen";
+import { modulosPython } from "./PythonWeeksScreen";
+import { modulosIA } from "./AIWeeksScreen";
+import { projetos } from "./BuildAppsScreen";
 export default function TasksScreen({ navigation }) {
     // 📚 LISTA DE TRILHAS FORMATADA PARA O DESIGN PREMIUM
     const trilhas = [
@@ -13,7 +18,7 @@ export default function TasksScreen({ navigation }) {
             tags: ["Essencial", "Conversação"],
             corBorda: "#6C5CE7",
             icone: () => <FontAwesome5 name="graduation-cap" size={22} color="#6C5CE7" />,
-            progresso: "100%", // Desbloqueado para testes
+            chaveProgresso: "Ingles",
             rota: "Weeks", // Vai para a tela de semanas de inglês
         },
         {
@@ -23,7 +28,7 @@ export default function TasksScreen({ navigation }) {
             tags: ["Inovação", "Produtividade"],
             corBorda: "#A855F7",
             icone: () => <MaterialCommunityIcons name="robot-outline" size={24} color="#A855F7" />,
-            progresso: "100%",
+            chaveProgresso: "IA",
             rota: "AIWeeks", // Vai para a trilha de IA que criamos
         },
         {
@@ -33,7 +38,7 @@ export default function TasksScreen({ navigation }) {
             tags: ["Back-End", "Lógica"],
             corBorda: "#FFD700",
             icone: () => <FontAwesome5 name="python" size={24} color="#FFD700" />,
-            progresso: "100%",
+            chaveProgresso: "Python",
             rota: "PythonWeeks",
         },
         {
@@ -43,11 +48,50 @@ export default function TasksScreen({ navigation }) {
             tags: ["Projetos", "Iniciante"],
             corBorda: "#00BA4A",
             icone: () => <MaterialCommunityIcons name="application-cog-outline" size={24} color="#00BA4A" />,
-            progresso: "100%",
+            chaveProgresso: "BuildApps",
             rota: "BuildApps", // 🌟 Aponta para a tela que mostra TODOS os módulos
         },
     ];
+const TOTAL_LICOES = {
+    Ingles: semanasIngles.length,
+    Python: modulosPython.length,
+    IA: modulosIA.length,
+    BuildApps: projetos.length,
+};
 
+const [progressoPorTrilha, setProgressoPorTrilha] = useState({
+    Ingles: 0,
+    Python: 0,
+    IA: 0,
+    BuildApps: 0,
+});
+
+const carregarProgresso = useCallback(async () => {
+    try {
+        const salvasStr = await AsyncStorage.getItem("@studyflow:completedLessons");
+        const licoesConcluidas = salvasStr ? JSON.parse(salvasStr) : [];
+
+        const calcularPercentual = (trilha) => {
+            const concluidas = licoesConcluidas.filter((id) => id.startsWith(`${trilha}:`)).length;
+            return Math.round((concluidas / TOTAL_LICOES[trilha]) * 100);
+        };
+
+        setProgressoPorTrilha({
+            Ingles: calcularPercentual("Ingles"),
+            Python: calcularPercentual("Python"),
+            IA: calcularPercentual("IA"),
+            BuildApps: calcularPercentual("BuildApps"),
+        });
+    } catch (error) {
+        console.log("Erro ao carregar progresso das trilhas:", error);
+    }
+}, []);
+
+useFocusEffect(
+    useCallback(() => {
+        carregarProgresso();
+    }, [carregarProgresso]),
+);
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -62,8 +106,8 @@ export default function TasksScreen({ navigation }) {
 
                 <View style={styles.trilhasContainer}>
                     {trilhas.map((trilha) => {
-                        const isEmBreve = trilha.progresso === "Em breve";
-
+const isEmBreve = false; // nenhuma trilha bloqueada no momento
+const percentual = progressoPorTrilha[trilha.chaveProgresso] ?? 0;
                         return (
                             <TouchableOpacity
                                 key={trilha.id}
@@ -92,6 +136,17 @@ export default function TasksScreen({ navigation }) {
                                         </Text>
                                     </View>
                                 </View>
+
+                                {/* BARRA DE PROGRESSO REAL */}
+                                <View style={styles.progressBarTrack}>
+                                    <View
+                                        style={[
+                                            styles.progressBarFill,
+                                            { width: `${percentual}%`, backgroundColor: trilha.corBorda },
+                                        ]}
+                                    />
+                                </View>
+                                <Text style={styles.progressText}>{percentual}% concluído</Text>
 
                                 {/* TAGS E STATUS */}
                                 <View style={styles.trilhaFooter}>
@@ -202,4 +257,21 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     entrarText: { color: "#FFF", fontSize: 11, fontWeight: "bold" },
+
+    progressBarTrack: {
+        height: 6,
+        backgroundColor: "#221F4D",
+        borderRadius: 3,
+        marginTop: 12,
+        overflow: "hidden",
+    },
+    progressBarFill: {
+        height: "100%",
+        borderRadius: 3,
+    },
+    progressText: {
+        color: "#8E8EA9",
+        fontSize: 11,
+        marginTop: 6,
+    },
 });
