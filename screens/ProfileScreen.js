@@ -1,4 +1,8 @@
 // screens/ProfileScreen.js
+import { semanasIngles } from "./WeeksScreen";
+import { modulosPython } from "./PythonWeeksScreen";
+import { modulosIA } from "./AIWeeksScreen";
+import { projetos } from "./BuildAppsScreen";
 import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
 import { Feather, FontAwesome5, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
@@ -144,6 +148,15 @@ export default function ProfileScreen() {
     // 📊 Quanto de XP já foi ganho DENTRO do nível atual (sempre de 0 a 99)
     const xpNoNivelAtual = xp % 100;
 
+    const TOTAL_LICOES = {
+        Ingles: semanasIngles.length,
+        Python: modulosPython.length,
+        IA: modulosIA.length,
+        BuildApps: projetos.length,
+    };
+
+    const [trilhasConcluidas, setTrilhasConcluidas] = useState(0);
+
     const loadProfileData = useCallback(async () => {
         try {
             const savedXp = await AsyncStorage.getItem("@studyflow:xp");
@@ -151,11 +164,23 @@ export default function ProfileScreen() {
 
             const savedStreak = await AsyncStorage.getItem("@studyflow:streak");
             if (savedStreak !== null) setStreak(parseInt(savedStreak, 10));
+
+            // 🏁 Conta quantas trilhas já chegaram a 100%
+            const salvasStr = await AsyncStorage.getItem("@studyflow:completedLessons");
+            const licoesConcluidas = salvasStr ? JSON.parse(salvasStr) : [];
+
+            const calcularPercentual = (trilha) => {
+                const concluidas = licoesConcluidas.filter((id) => id.startsWith(`${trilha}:`)).length;
+                return Math.round((concluidas / TOTAL_LICOES[trilha]) * 100);
+            };
+
+            const trilhas = ["Ingles", "Python", "IA", "BuildApps"];
+            const totalCompletas = trilhas.filter((trilha) => calcularPercentual(trilha) === 100).length;
+            setTrilhasConcluidas(totalCompletas);
         } catch (error) {
             console.log("Erro ao carregar dados do perfil:", error);
         }
     }, []);
-
     useFocusEffect(
         useCallback(() => {
             loadProfileData();
@@ -246,9 +271,9 @@ export default function ProfileScreen() {
                         <Text style={styles.quadLabel}>Tempo total estudado</Text>
                     </View>
                     <View style={styles.quadBox}>
-                        <MaterialCommunityIcons name="fire" size={20} color="#FF5C5C" style={styles.quadIcon} />
-                        <Text style={styles.quadValue}>{streak}</Text>
-                        <Text style={styles.quadLabel}>Sequência atual</Text>
+                        <Feather name="check-circle" size={18} color="#00BA4A" style={styles.quadIcon} />
+                        <Text style={styles.quadValue}>{trilhasConcluidas}/4</Text>
+                        <Text style={styles.quadLabel}>Trilhas concluídas</Text>
                     </View>
                     <View style={styles.quadBox}>
                         <Feather name="check-circle" size={18} color="#00BA4A" style={styles.quadIcon} />
