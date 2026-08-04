@@ -136,7 +136,7 @@ const MENSAGENS_DO_DIA = [
 
 ];
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
     const [xp, setXp] = useState(725); // Valor padrão até o real ser carregado
     const [streak, setStreak] = useState(1);
     const [modalConquistasVisivel, setModalConquistasVisivel] = useState(false);
@@ -245,7 +245,11 @@ export default function ProfileScreen() {
                         <Text style={styles.horizontalPercentLabel}>{xpNoNivelAtual}%</Text>
                     </View>
 
-                    <TouchableOpacity style={styles.continueButton} activeOpacity={0.8}>
+                    <TouchableOpacity
+                        style={styles.continueButton}
+                        activeOpacity={0.8}
+                        onPress={() => navigation.navigate("Tarefas")}
+                    >
                         <Text style={styles.continueButtonText}>Continuar evoluindo</Text>
                         <Feather name="chevron-right" size={16} color="#6C5CE7" />
                     </TouchableOpacity>
