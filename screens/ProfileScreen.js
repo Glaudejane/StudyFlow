@@ -4,7 +4,7 @@ import { modulosPython } from "./PythonWeeksScreen";
 import { modulosIA } from "./AIWeeksScreen";
 import { projetos } from "./BuildAppsScreen";
 import React, { useState, useCallback } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal } from "react-native";
 import { Feather, FontAwesome5, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -139,6 +139,7 @@ const MENSAGENS_DO_DIA = [
 export default function ProfileScreen() {
     const [xp, setXp] = useState(725); // Valor padrão até o real ser carregado
     const [streak, setStreak] = useState(1);
+    const [modalConquistasVisivel, setModalConquistasVisivel] = useState(false);
 
     const level = Math.floor(xp / 100) + 1;
 
@@ -291,7 +292,7 @@ export default function ProfileScreen() {
                 {/* 5. SEÇÃO: CONQUISTAS (MEDALHAS ESTILIZADAS COM CÓDIGO) */}
                 <View style={styles.sectionHeaderRow}>
                     <Text style={styles.sectionMainTitle}>Conquistas</Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => setModalConquistasVisivel(true)}>
                         <Text style={styles.verTodasText}>Ver todas</Text>
                     </TouchableOpacity>
                 </View>
@@ -389,9 +390,83 @@ export default function ProfileScreen() {
                     </View>
                 </View>
             </ScrollView>
+
+            <Modal
+                visible={modalConquistasVisivel}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalConquistasVisivel(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>🏆 Todas as Conquistas</Text>
+                            <TouchableOpacity onPress={() => setModalConquistasVisivel(false)}>
+                                <Feather name="x" size={24} color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <View style={styles.modalBadgeRow}>
+                                <FontAwesome5 name="trophy" size={22} color="#FFD700" />
+                                <View style={styles.modalBadgeTexts}>
+                                    <Text style={styles.modalBadgeName}>Primeira semana</Text>
+                                    <Text style={styles.modalBadgeDesc}>
+                                        Complete sua primeira semana estudando no app.
+                                    </Text>
+                                </View>
+                                <Text style={styles.modalBadgeStatusOk}>✓</Text>
+                            </View>
+
+                            <View style={styles.modalBadgeRow}>
+                                <MaterialCommunityIcons name="bolt" size={24} color="#A855F7" />
+                                <View style={styles.modalBadgeTexts}>
+                                    <Text style={styles.modalBadgeName}>10h de foco</Text>
+                                    <Text style={styles.modalBadgeDesc}>
+                                        Acumule 10 horas de estudo usando o Timer.
+                                    </Text>
+                                </View>
+                                <Text style={styles.modalBadgeStatusOk}>✓</Text>
+                            </View>
+
+                            <View style={styles.modalBadgeRow}>
+                                <FontAwesome5 name="brain" size={22} color="#3B82F6" />
+                                <View style={styles.modalBadgeTexts}>
+                                    <Text style={styles.modalBadgeName}>Mestre da lógica</Text>
+                                    <Text style={styles.modalBadgeDesc}>Acerte 5 quizzes seguidos sem errar.</Text>
+                                </View>
+                                <Text style={styles.modalBadgeStatusOk}>✓</Text>
+                            </View>
+
+                            <View style={styles.modalBadgeRow}>
+                                <FontAwesome5 name="rocket" size={20} color="#FF7A00" />
+                                <View style={styles.modalBadgeTexts}>
+                                    <Text style={styles.modalBadgeName}>Início em IA</Text>
+                                    <Text style={styles.modalBadgeDesc}>
+                                        Complete a primeira lição da trilha de IA.
+                                    </Text>
+                                </View>
+                                <Text style={styles.modalBadgeStatusOk}>✓</Text>
+                            </View>
+
+                            <View style={styles.modalBadgeRow}>
+                                <Feather name="lock" size={20} color="#8E8EA9" />
+                                <View style={styles.modalBadgeTexts}>
+                                    <Text style={[styles.modalBadgeName, { color: "#8E8EA9" }]}>30 dias de foco</Text>
+                                    <Text style={styles.modalBadgeDesc}>
+                                        Estude por 30 dias seguidos sem quebrar a sequência.
+                                    </Text>
+                                </View>
+                                <Text style={styles.modalBadgeStatusLocked}>0/30</Text>
+                            </View>
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
+     
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#090A1A" },
@@ -577,6 +652,38 @@ const styles = StyleSheet.create({
         lineHeight: 15,
     },
     badgeStatusText: { fontSize: 14, fontWeight: "bold", marginTop: 4 },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.6)",
+        justifyContent: "flex-end",
+    },
+    modalContent: {
+        backgroundColor: "#15162E",
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 20,
+        maxHeight: "75%",
+    },
+    modalHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+    },
+    modalTitle: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
+    modalBadgeRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#1F2044",
+        borderRadius: 14,
+        padding: 14,
+        marginBottom: 10,
+    },
+    modalBadgeTexts: { flex: 1, marginLeft: 14 },
+    modalBadgeName: { color: "#FFF", fontSize: 14, fontWeight: "bold" },
+    modalBadgeDesc: { color: "#8E8EA9", fontSize: 12, marginTop: 2 },
+    modalBadgeStatusOk: { color: "#00BA4A", fontSize: 18, fontWeight: "bold" },
+    modalBadgeStatusLocked: { color: "#8E8EA9", fontSize: 12, fontWeight: "bold" },
 
     // 6. MEU FUTURO PROGRESSO
     objSubText: { color: "#8E8EA9", fontSize: 12, marginTop: -8, marginBottom: 12 },
