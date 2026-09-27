@@ -112,7 +112,7 @@ export default function HomeScreen({ navigation }) {
                 {/* Cabeçalho */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.welcomeText}>Olá, Glaudejane! 👋</Text>
+                        <Text style={styles.welcomeText}>Vamos estudar! 👋</Text>
                         <Text style={styles.subWelcomeText}>Seu painel de evolução</Text>
                     </View>
                     <TouchableOpacity style={styles.notificationButton}>
