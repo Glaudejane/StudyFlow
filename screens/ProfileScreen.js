@@ -348,51 +348,6 @@ export default function ProfileScreen({ navigation }) {
                         </Text>
                     </View>
                 </ScrollView>
-
-                {/* 6. SEÇÃO: MEU FUTURO (PROGRESSO TÉCNICO) */}
-                <View style={[styles.sectionHeaderRow, { marginTop: 16 }]}>
-                    <Text style={styles.sectionMainTitle}>🎯 Meu futuro</Text>
-                </View>
-                <Text style={styles.objSubText}>
-                    Objetivo: <Text style={{ color: "#A855F7", fontWeight: "bold" }}>Desenvolvedora Front-End</Text>
-                </Text>
-
-                <View style={styles.futureContainerCard}>
-                    <View style={styles.skillsLeftColumn}>
-                        {/* HTML */}
-                        <View style={styles.skillProgressItem}>
-                            <Text style={styles.skillLabelText}>HTML</Text>
-                            <View style={styles.skillTrackBack}>
-                                <View style={[styles.skillTrackFill, { width: "80%" }]} />
-                            </View>
-                            <Text style={styles.skillPercentValue}>80%</Text>
-                        </View>
-                        {/* CSS */}
-                        <View style={styles.skillProgressItem}>
-                            <Text style={styles.skillLabelText}>CSS</Text>
-                            <View style={styles.skillTrackBack}>
-                                <View style={[styles.skillTrackFill, { width: "60%" }]} />
-                            </View>
-                            <Text style={styles.skillPercentValue}>60%</Text>
-                        </View>
-                        {/* JavaScript */}
-                        <View style={styles.skillProgressItem}>
-                            <Text style={styles.skillLabelText}>JavaScript</Text>
-                            <View style={styles.skillTrackBack}>
-                                <View style={[styles.skillTrackFill, { width: "45%" }]} />
-                            </View>
-                            <Text style={styles.skillPercentValue}>45%</Text>
-                        </View>
-                        {/* React */}
-                        <View style={styles.skillProgressItem}>
-                            <Text style={styles.skillLabelText}>React</Text>
-                            <View style={styles.skillTrackBack}>
-                                <View style={[styles.skillTrackFill, { width: "30%" }]} />
-                            </View>
-                            <Text style={styles.skillPercentValue}>30%</Text>
-                        </View>
-                    </View>
-                </View>
             </ScrollView>
 
             <Modal
