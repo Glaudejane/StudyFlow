@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from "react-native";
 import { useAudioPlayer, AudioSource } from "expo-audio";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function TimerScreen({ navigation }) {
     const s = styles;
 
@@ -18,6 +19,17 @@ export default function TimerScreen({ navigation }) {
     lofiPlayer.volume = 0.4; // Volume confortável
 
     // 1. CORAÇÃO DO CRONÔMETRO (só cuida de contar os segundos)
+    // ⏱️ Soma o tempo de um bloco de foco concluído ao total guardado
+    const registrarTempoEstudado = async () => {
+        try {
+            const minutosSalvos = await AsyncStorage.getItem("@studyflow:tempoEstudadoMinutos");
+            const totalAtual = minutosSalvos ? parseInt(minutosSalvos, 10) : 0;
+            const novoTotal = totalAtual + 25; // cada bloco de foco vale 25 minutos
+            await AsyncStorage.setItem("@studyflow:tempoEstudadoMinutos", novoTotal.toString());
+        } catch (error) {
+            console.log("Erro ao salvar tempo estudado:", error);
+        }
+    };
     useEffect(() => {
         if (!isActive || secondsLeft <= 0) return;
 
@@ -37,6 +49,14 @@ export default function TimerScreen({ navigation }) {
 
             // 🔔 Toca o alarme moderno!
             alarmPlayer.play();
+
+            if (currentMode === "foco") {
+                registrarTempoEstudado(); // Registra o tempo estudado ao concluir um bloco de foco
+            }
+
+            // Alterna entre foco e pausa automaticamente
+            setCurrentMode((prevMode) => (prevMode === "foco" ? "pausa" : "foco"));
+            setSecondsLeft((prevMode) => (currentMode === "foco" ? 5 * 60 : 25 * 60));
 
             Alert.alert(
                 currentMode === "foco" ? "🔥 Bloco Concluído!" : "☕ Pausa Terminada!",
