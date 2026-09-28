@@ -140,6 +140,7 @@ export default function ProfileScreen({ navigation }) {
     const [xp, setXp] = useState(725); // Valor padrão até o real ser carregado
     const [streak, setStreak] = useState(1);
     const [modalConquistasVisivel, setModalConquistasVisivel] = useState(false);
+    const [tempoEstudadoFormatado, setTempoEstudadoFormatado] = useState("0h 0m");
 
     const level = Math.floor(xp / 100) + 1;
 
@@ -178,6 +179,13 @@ export default function ProfileScreen({ navigation }) {
             const trilhas = ["Ingles", "Python", "IA", "BuildApps"];
             const totalCompletas = trilhas.filter((trilha) => calcularPercentual(trilha) === 100).length;
             setTrilhasConcluidas(totalCompletas);
+
+            // ⏱️ Formata os minutos totais estudados em "Xh Ym"
+            const minutosSalvos = await AsyncStorage.getItem("@studyflow:tempoEstudadoMinutos");
+            const totalMinutos = minutosSalvos ? parseInt(minutosSalvos, 10) : 0;
+            const horas = Math.floor(totalMinutos / 60);
+            const minutosRestantes = totalMinutos % 60;
+            setTempoEstudadoFormatado(`${horas}h ${minutosRestantes}m`);
         } catch (error) {
             console.log("Erro ao carregar dados do perfil:", error);
         }
@@ -272,7 +280,7 @@ export default function ProfileScreen({ navigation }) {
                 <View style={styles.quadGrid}>
                     <View style={styles.quadBox}>
                         <Feather name="clock" size={18} color="#6C5CE7" style={styles.quadIcon} />
-                        <Text style={styles.quadValue}>37h 45m</Text>
+                        <Text style={styles.quadValue}>{tempoEstudadoFormatado}</Text>
                         <Text style={styles.quadLabel}>Tempo total estudado</Text>
                     </View>
                     <View style={styles.quadBox}>
