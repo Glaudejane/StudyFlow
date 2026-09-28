@@ -203,7 +203,7 @@ export default function ProfileScreen({ navigation }) {
                     </View>
 
                     <View style={styles.userMainInfo}>
-                        <Text style={styles.profileUserName}>Glaudejane 👋</Text>
+                        <Text style={styles.profileUserName}>Aluno 👋</Text>
                         <Text style={styles.profileUserBio}>Construindo sua nova carreira na tecnologia 🚀</Text>
                         <View style={styles.locationRow}>
                             <Ionicons name="location-outline" size={14} color="#8E8EA9" />
