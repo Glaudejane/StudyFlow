@@ -1,4 +1,5 @@
 // screens/ProfileScreen.js
+import { AVATARES } from "./WelcomeSetupScreen";
 import { semanasIngles } from "./WeeksScreen";
 import { modulosPython } from "./PythonWeeksScreen";
 import { modulosIA } from "./AIWeeksScreen";
@@ -141,6 +142,8 @@ export default function ProfileScreen({ navigation }) {
     const [streak, setStreak] = useState(1);
     const [modalConquistasVisivel, setModalConquistasVisivel] = useState(false);
     const [tempoEstudadoFormatado, setTempoEstudadoFormatado] = useState("0h 0m");
+    const [nomeUsuario, setNomeUsuario] = useState("Aluno");
+    const [avatarUsuario, setAvatarUsuario] = useState(AVATARES[0]); // Avatar padrão até o real ser carregado
 
     const level = Math.floor(xp / 100) + 1;
 
@@ -161,6 +164,14 @@ export default function ProfileScreen({ navigation }) {
 
     const loadProfileData = useCallback(async () => {
         try {
+            const nomeGuardado = await AsyncStorage.getItem("@studyflow:userName");
+            if (nomeGuardado) setNomeUsuario(nomeGuardado);
+
+            const avatarGuardado = await AsyncStorage.getItem("@studyflow:userAvatar");
+            if (avatarGuardado) {
+                const avatarEncontrado = AVATARES.find((a) => a.id === avatarGuardado);
+                if (avatarEncontrado) setAvatarUsuario(avatarEncontrado);
+            }
             const savedXp = await AsyncStorage.getItem("@studyflow:xp");
             if (savedXp !== null) setXp(parseInt(savedXp, 10));
 
@@ -203,7 +214,19 @@ export default function ProfileScreen({ navigation }) {
                 <View style={styles.topUserRow}>
                     <View style={styles.avatarOuterRing}>
                         <View style={styles.avatarInnerBg}>
-                            <FontAwesome5 name="user-astronaut" size={36} color="#6C5CE7" />
+                            {avatarUsuario ? (
+                                avatarUsuario.lib === "material" ? (
+                                    <MaterialCommunityIcons
+                                        name={avatarUsuario.icone}
+                                        size={36}
+                                        color={avatarUsuario.cor}
+                                    />
+                                ) : (
+                                    <FontAwesome5 name={avatarUsuario.icone} size={36} color={avatarUsuario.cor} />
+                                )
+                            ) : (
+                                <FontAwesome5 name="user-astronaut" size={36} color="#6C5CE7" />
+                            )}
                         </View>
                         <TouchableOpacity style={styles.editPencilBadge}>
                             <Feather name="edit-2" size={10} color="#FFF" />
@@ -211,7 +234,7 @@ export default function ProfileScreen({ navigation }) {
                     </View>
 
                     <View style={styles.userMainInfo}>
-                        <Text style={styles.profileUserName}>Aluno 👋</Text>
+                        <Text style={styles.profileUserName}>{nomeUsuario} 👋</Text>
                         <Text style={styles.profileUserBio}>Construindo sua nova carreira na tecnologia 🚀</Text>
                         <View style={styles.locationRow}>
                             <Ionicons name="location-outline" size={14} color="#8E8EA9" />

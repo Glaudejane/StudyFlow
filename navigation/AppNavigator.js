@@ -1,22 +1,24 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack"; 
+import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import WeeksScreen from "../screens/WeeksScreen";
 import PythonWeeksScreen from "../screens/PythonWeeksScreen";
 import BuildAppsScreen from "../screens/BuildAppsScreen";
+import WelcomeSetupScreen from "../screens/WelcomeSetupScreen";
 
 // Importação das Telas
 import HomeScreen from "../screens/HomeScreen";
 import TimerScreen from "../screens/TimerScreen";
 import TaskScreen from "../screens/TaskScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-import LearnScreen from "../screens/LearnScreen"; 
+import LearnScreen from "../screens/LearnScreen";
 import AIWeeksScreen from "../screens/AIWeeksScreen"; // Já estava aqui, perfeito!
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator(); 
+const Stack = createStackNavigator();
 
 // COMPONENTE DAS ABAS INFERIORES
 function TabNavigator() {
@@ -76,9 +78,28 @@ function TabNavigator() {
 
 // O NAVEGADOR PRINCIPAL GERENCIA O FLUXO GLOBAL
 export default function AppNavigator() {
+    const [carregando, setCarregando] = useState(true);
+    const [nomeSalvo, setNomeSalvo] = useState(null);
+
+    useEffect(() => {
+        const verificarPrimeiraVez = async () => {
+            try {
+                const nome = await AsyncStorage.getItem("@studyflow:userName");
+                setNomeSalvo(nome);
+            } catch (error) {
+                console.error("Erro ao verificar nome salvo:", error);
+            } finally {
+                setCarregando(false);
+            }
+        };
+
+        verificarPrimeiraVez();
+    }, []);
+
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
+                {!nomeSalvo && <Stack.Screen name="WelcomeSetup" component={WelcomeSetupScreen} />}
                 {/* A primeira tela da pilha são as nossas abas inferiores */}
                 <Stack.Screen name="MainTabs" component={TabNavigator} />
 

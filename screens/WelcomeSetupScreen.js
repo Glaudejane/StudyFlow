@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
 import { MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // 🎨 As 6 opções de avatar disponíveis
-const AVATARES = [
+export const AVATARES = [
     { id: "robo", icone: "robot-outline", lib: "material", cor: "#A855F7" },
     { id: "foguete", icone: "rocket", lib: "fontawesome", cor: "#FF7A00" },
     { id: "cerebro", icone: "brain", lib: "fontawesome", cor: "#3B82F6" },
@@ -12,11 +13,24 @@ const AVATARES = [
     { id: "cobra", icone: "leaf", lib: "material", cor: "#FF5C5C" }, // ícone temporário, ajustamos já já
 ];
 
-export default function WelcomeSetupScreen() {
+export default function WelcomeSetupScreen({ navigation }) {
     const [nome, setNome] = useState("");
     const [avatarSelecionado, setAvatarSelecionado] = useState(null);
 
     const podeContiunar = nome.trim().length > 0 && avatarSelecionado !== null;
+
+    const salvarContinuar = async () => {
+        try {
+            await AsyncStorage.setItem("@studyflow:userName", nome.trim());
+            await AsyncStorage.setItem("@studyflow:userAvatar", avatarSelecionado);
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "MainTabs" }],
+            });
+        } catch (error) {
+            console.log("Erro ao salvar dados de boas-vindas:", error);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -68,6 +82,7 @@ export default function WelcomeSetupScreen() {
                 <TouchableOpacity
                     style={[styles.botaoContinuar, !podeContiunar && styles.botaoDesabilitado]}
                     disabled={!podeContiunar}
+                    onPress={salvarContinuar}
                 >
                     <Text style={styles.botaoTexto}>Continuar</Text>
                 </TouchableOpacity>
