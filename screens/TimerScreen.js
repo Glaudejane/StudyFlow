@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from "react-native";
+import React, { useState, useEffect, use } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Modal } from "react-native";
 import { useAudioPlayer, AudioSource } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function TimerScreen({ navigation }) {
@@ -8,6 +8,9 @@ export default function TimerScreen({ navigation }) {
     const [currentMode, setCurrentMode] = useState("foco");
     const [secondsLeft, setSecondsLeft] = useState(25 * 60);
     const [isActive, setIsActive] = useState(false);
+    const [focoMinutos, setFocoMinutos] = useState(25);
+    const [pausaMinutos, setPausaMinutos] = useState(5);
+    const [configVisivel, setConfigVisivel] = useState(false);
 
     // 🎵 NOVA MANEIRA: Criando os players de áudio nativos e modernos
     // Eles já carregam os arquivos locais da pasta assets perfeitamente!
@@ -18,13 +21,32 @@ export default function TimerScreen({ navigation }) {
     lofiPlayer.loop = true;
     lofiPlayer.volume = 0.4; // Volume confortável
 
+    useEffect(() => {
+        const carregarConfiguracoes = async () => {
+            try {
+                const focoSalvo = await AsyncStorage.getItem("@studyflow:focoMinutos");
+                const pausaSalva = await AsyncStorage.getItem("@studyflow:pausaMinutos");
+                const focoCarregado = focoSalvo ? parseInt(focoSalvo, 10) : 25;
+                const pausaCarregada = pausaSalva ? parseInt(pausaSalva, 10) : 5;
+                setFocoMinutos(focoCarregado);
+                setPausaMinutos(pausaCarregada);
+                setSecondsLeft(focoCarregado * 60);
+            } catch (error) {
+                console.log("Erro ao carregar configuracoes do timer:", error);
+            }
+        };
+
+        carregarConfiguracoes();
+    }, []);
+
     // 1. CORAÇÃO DO CRONÔMETRO (só cuida de contar os segundos)
     // ⏱️ Soma o tempo de um bloco de foco concluído ao total guardado
+
     const registrarTempoEstudado = async () => {
         try {
             const minutosSalvos = await AsyncStorage.getItem("@studyflow:tempoEstudadoMinutos");
             const totalAtual = minutosSalvos ? parseInt(minutosSalvos, 10) : 0;
-            const novoTotal = totalAtual + 25; // cada bloco de foco vale 25 minutos
+            const novoTotal = totalAtual + focoMinutos; // cada bloco de foco vale 25 minutos
             await AsyncStorage.setItem("@studyflow:tempoEstudadoMinutos", novoTotal.toString());
         } catch (error) {
             console.log("Erro ao salvar tempo estudado:", error);
@@ -56,7 +78,7 @@ export default function TimerScreen({ navigation }) {
 
             // Alterna entre foco e pausa automaticamente
             setCurrentMode((prevMode) => (prevMode === "foco" ? "pausa" : "foco"));
-            setSecondsLeft((prevMode) => (currentMode === "foco" ? 5 * 60 : 25 * 60));
+            setSecondsLeft((prevSegundos) => (currentMode === "foco" ? pausaMinutos * 60 : focoMinutos * 60));
 
             Alert.alert(
                 currentMode === "foco" ? "🔥 Bloco Concluído!" : "☕ Pausa Terminada!",
@@ -78,9 +100,29 @@ export default function TimerScreen({ navigation }) {
         setIsActive(false);
         setCurrentMode(mode);
         if (mode === "foco") {
-            setSecondsLeft(25 * 60);
+            setSecondsLeft(mode === "foco" ? focoMinutos * 60 : pausaMinutos * 60);
         } else {
-            setSecondsLeft(5 * 60);
+            setSecondsLeft(pausaMinutos * 60);
+        }
+    };
+
+    const salvarConfiguracao = async (tipo, valor) => {
+        try {
+            if (tipo === "foco") {
+                setFocoMinutos(valor);
+                await AsyncStorage.setItem("@studyflow:focoMinutos", valor.toString());
+                if (currentMode === "foco" && !isActive) {
+                    setSecondsLeft(valor * 60);
+                }
+            } else {
+                setPausaMinutos(valor);
+                await AsyncStorage.setItem("@studyflow:pausaMinutos", valor.toString());
+                if (currentMode === "pausa" && !isActive) {
+                    setSecondsLeft(valor * 60);
+                }
+            }
+        } catch (error) {
+            console.log("Erro ao salvar configuracao do timer:", error);
         }
     };
 
@@ -101,7 +143,7 @@ export default function TimerScreen({ navigation }) {
                     <Text style={s.backText}>←</Text>
                 </TouchableOpacity>
                 <Text style={s.headerTitle}>Foco Pomodoro</Text>
-                <TouchableOpacity style={s.settingsButton}>
+                <TouchableOpacity style={s.settingsButton} onPress={() => setConfigVisivel(true)}>
                     <Text style={s.settingsText}>⚙️</Text>
                 </TouchableOpacity>
             </View>
@@ -161,6 +203,54 @@ export default function TimerScreen({ navigation }) {
                 <Text style={s.mainButtonText}>{isActive ? "Pausar foco" : "Iniciar foco"}</Text>
                 <Text style={s.mainButtonIcon}>{isActive ? "⏸" : "▶"}</Text>
             </TouchableOpacity>
+
+            <Modal
+                visible={configVisivel}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setConfigVisivel(false)}
+            >
+                <View style={s.modalOverlay}>
+                    <View style={s.modalContent}>
+                        <View style={s.modalHeader}>
+                            <Text style={s.modalTitle}>⚙️ Configurar Timer</Text>
+                            <TouchableOpacity onPress={() => setConfigVisivel(false)}>
+                                <Text style={{ color: "#FFF", fontSize: 20 }}>✕</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <Text style={s.modalLabel}>Duração do foco</Text>
+                        <View style={s.opcoesRow}>
+                            {[15, 25, 45].map((valor) => (
+                                <TouchableOpacity
+                                    key={valor}
+                                    style={[s.opcaoChip, focoMinutos === valor && s.opcaoChipSelecionada]}
+                                    onPress={() => salvarConfiguracao("foco", valor)}
+                                >
+                                    <Text style={[s.opcaoTexto, focoMinutos === valor && s.opcaoTextoSelecionado]}>
+                                        {valor} min
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <Text style={s.modalLabel}>Duração da pausa</Text>
+                        <View style={s.opcoesRow}>
+                            {[5, 10, 15].map((valor) => (
+                                <TouchableOpacity
+                                    key={valor}
+                                    style={[s.opcaoChip, pausaMinutos === valor && s.opcaoChipSelecionada]}
+                                    onPress={() => salvarConfiguracao("pausa", valor)}
+                                >
+                                    <Text style={[s.opcaoTexto, pausaMinutos === valor && s.opcaoTextoSelecionado]}>
+                                        {valor} min
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -232,4 +322,37 @@ const styles = StyleSheet.create({
     },
     mainButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "bold" },
     mainButtonIcon: { color: "#FFFFFF", fontSize: 12 },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.6)",
+        justifyContent: "flex-end",
+    },
+    modalContent: {
+        backgroundColor: "#15162E",
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 24,
+    },
+    modalHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 24,
+    },
+    modalTitle: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
+    modalLabel: { color: "#8E8EA9", fontSize: 13, fontWeight: "bold", marginBottom: 10 },
+    opcoesRow: { flexDirection: "row", gap: 10, marginBottom: 24 },
+    opcaoChip: {
+        flex: 1,
+        backgroundColor: "#221F4D",
+        borderRadius: 12,
+        paddingVertical: 12,
+        alignItems: "center",
+        borderWidth: 1.5,
+        borderColor: "#221F4D",
+    },
+    opcaoChipSelecionada: { borderColor: "#6C5CE7", backgroundColor: "#6C5CE7" },
+    opcaoTexto: { color: "#8E8EA9", fontWeight: "bold" },
+    opcaoTextoSelecionado: { color: "#FFF" },
 });
