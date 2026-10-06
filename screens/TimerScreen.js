@@ -11,7 +11,10 @@ export default function TimerScreen({ navigation }) {
     const [focoMinutos, setFocoMinutos] = useState(25);
     const [pausaMinutos, setPausaMinutos] = useState(5);
     const [configVisivel, setConfigVisivel] = useState(false);
-
+    const [ciclosFoco, setCiclosFoco] = useState(0); // Contador de ciclos de foco concluídos
+    const CICLOS_ATE_PARAR = 4; // Número de ciclos de foco antes de uma pausa longa
+    const [avisoVisivel, setAvisoVisivel] = useState(false); // Estado para controlar a visibilidade do aviso de ciclo completo
+    const [avisoConteudo, setAvisoConteudo] = useState({ titulo: "", subtitulo: "" }); // Conteúdo do aviso de ciclo completo
     // 🎵 NOVA MANEIRA: Criando os players de áudio nativos e modernos
     // Eles já carregam os arquivos locais da pasta assets perfeitamente!
     const alarmPlayer = useAudioPlayer(require("../assets/alarm.mp3"));
@@ -62,6 +65,12 @@ export default function TimerScreen({ navigation }) {
         return () => clearInterval(interval);
     }, [isActive, secondsLeft]);
 
+    const mostrarAviso = (titulo, subtitulo) => {
+        setAvisoConteudo({ titulo, subtitulo });
+        setAvisoVisivel(true);
+        setTimeout(() => setAvisoVisivel(false), 3000);
+    };
+
     // 2. QUANDO O TEMPO ZERA (só vigia secondsLeft, evitando disparo duplo)
     useEffect(() => {
         if (secondsLeft !== 0) return;
@@ -72,22 +81,39 @@ export default function TimerScreen({ navigation }) {
             // 🔔 Toca o alarme moderno!
             alarmPlayer.play();
 
+            let continuarAutomaticamente = true;
+
             if (currentMode === "foco") {
                 registrarTempoEstudado(); // Registra o tempo estudado ao concluir um bloco de foco
-            }
 
+                const novoCiclo = ciclosFoco + 1;
+
+                if (novoCiclo >= CICLOS_ATE_PARAR) {
+                    continuarAutomaticamente = false;
+                    setCiclosFoco(0);
+                } else {
+                    setCiclosFoco(novoCiclo);
+                }
+            }
             // Alterna entre foco e pausa automaticamente
             setCurrentMode((prevMode) => (prevMode === "foco" ? "pausa" : "foco"));
             setSecondsLeft((prevSegundos) => (currentMode === "foco" ? pausaMinutos * 60 : focoMinutos * 60));
 
-            Alert.alert(
-                currentMode === "foco" ? "🔥 Bloco Concluído!" : "☕ Pausa Terminada!",
-                currentMode === "foco"
-                    ? "Excelente trabalho! Hora de descansar um pouco."
-                    : "Hora de voltar ao fluxo de foco!",
-            );
+            // 🔔 Mostra um aviso rápido, que some sozinho (sem precisar tocar em nada)
+            if (currentMode === "foco") {
+                if (continuarAutomaticamente) {
+                    mostrarAviso("🔥 Bloco concluído!", "Hora de uma pausa curta.");
+                } else {
+                    mostrarAviso(
+                        "🎉 Ciclo completo!",
+                        `Você completou ${CICLOS_ATE_PARAR} blocos de foco! Reinicie quando estiver pronta para a pausa longa.`,
+                    );
+                }
+            } else {
+                mostrarAviso("☕ Pausa terminada!", "Hora de voltar ao fluxo de foco!");
+            }
 
-            return false;
+            return continuarAutomaticamente; // Se for false, o cronômetro para e espera ação do usuário
         });
     }, [secondsLeft]);
     const formatTime = () => {
@@ -137,6 +163,12 @@ export default function TimerScreen({ navigation }) {
 
     return (
         <SafeAreaView style={s.container}>
+            {avisoVisivel && (
+                <View style={s.avisoToast}>
+                    <Text style={s.avisoTitulo}>{avisoConteudo.titulo}</Text>
+                    <Text style={s.avisoSubtitulo}>{avisoConteudo.subtitulo}</Text>
+                </View>
+            )}
             {/* Header */}
             <View style={s.header}>
                 <TouchableOpacity style={s.backButton} onPress={() => navigation.navigate("Início")}>
@@ -352,6 +384,21 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderColor: "#221F4D",
     },
+    avisoToast: {
+        position: "absolute",
+        top: 70,
+        left: 24,
+        right: 24,
+        backgroundColor: "#221F4D",
+        borderRadius: 14,
+        padding: 14,
+        borderWidth: 1,
+        borderColor: "#6C5CE7",
+        zIndex: 10,
+        alignItems: "center",
+    },
+    avisoTitulo: { color: "#FFF", fontWeight: "bold", fontSize: 14 },
+    avisoSubtitulo: { color: "#8E8EA9", fontSize: 12, marginTop: 4, textAlign: "center" },
     opcaoChipSelecionada: { borderColor: "#6C5CE7", backgroundColor: "#6C5CE7" },
     opcaoTexto: { color: "#8E8EA9", fontWeight: "bold" },
     opcaoTextoSelecionado: { color: "#FFF" },
