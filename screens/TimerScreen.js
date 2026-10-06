@@ -158,7 +158,7 @@ export default function TimerScreen({ navigation }) {
             // 🔔 Mostra um aviso rápido, que some sozinho (sem precisar tocar em nada)
             if (currentMode === "foco") {
                 if (continuarAutomaticamente) {
-                    mostrarAviso("🔥 Bloco concluído!", "Hora de uma pausa curta.", "robot-excited");
+                    mostrarAviso("🔥 Bloco concluído!", "Hora de uma pausa curta.", "robot-excited", "#FF6B6B");
                 } else {
                     mostrarAviso(
                         "🎉 Ciclo completo!",
