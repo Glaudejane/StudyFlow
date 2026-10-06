@@ -1,7 +1,9 @@
-import React, { useState, useEffect, use } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Modal } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Modal, Animated, Easing } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAudioPlayer, AudioSource } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export default function TimerScreen({ navigation }) {
     const s = styles;
 
@@ -13,8 +15,18 @@ export default function TimerScreen({ navigation }) {
     const [configVisivel, setConfigVisivel] = useState(false);
     const [ciclosFoco, setCiclosFoco] = useState(0); // Contador de ciclos de foco concluídos
     const CICLOS_ATE_PARAR = 4; // Número de ciclos de foco antes de uma pausa longa
-    const [avisoVisivel, setAvisoVisivel] = useState(false); // Estado para controlar a visibilidade do aviso de ciclo completo
-    const [avisoConteudo, setAvisoConteudo] = useState({ titulo: "", subtitulo: "" }); // Conteúdo do aviso de ciclo completo
+    const [avisoVisivel, setAvisoVisivel] = useState(false);
+    const [avisoConteudo, setAvisoConteudo] = useState({
+        titulo: "",
+        subtitulo: "",
+        icone: "robot-happy",
+        cor: "#6C5CE7",
+    });
+
+    // 🤖 "Controles remotos" da animação do robô
+    const escalaMascote = useRef(new Animated.Value(0)).current;
+    const opacidadeMascote = useRef(new Animated.Value(0)).current;
+    const flutuarMascote = useRef(new Animated.Value(0)).current;
     // 🎵 NOVA MANEIRA: Criando os players de áudio nativos e modernos
     // Eles já carregam os arquivos locais da pasta assets perfeitamente!
     const alarmPlayer = useAudioPlayer(require("../assets/alarm.mp3"));
@@ -65,12 +77,56 @@ export default function TimerScreen({ navigation }) {
         return () => clearInterval(interval);
     }, [isActive, secondsLeft]);
 
-    const mostrarAviso = (titulo, subtitulo) => {
-        setAvisoConteudo({ titulo, subtitulo });
+    const mostrarAviso = (titulo, subtitulo, icone, cor) => {
+        setAvisoConteudo({ titulo, subtitulo, icone, cor });
         setAvisoVisivel(true);
-        setTimeout(() => setAvisoVisivel(false), 3000);
-    };
 
+        // Reseta a animação antes de começar, caso o robô apareça de novo rapidinho
+        escalaMascote.setValue(0);
+        opacidadeMascote.setValue(0);
+
+        // 🐇 Entrada: o robô "salta" na tela (efeito elástico/mola)
+        Animated.parallel([
+            Animated.spring(escalaMascote, {
+                toValue: 1,
+                friction: 4,
+                tension: 80,
+                useNativeDriver: true,
+            }),
+            Animated.timing(opacidadeMascote, {
+                toValue: 1,
+                duration: 250,
+                useNativeDriver: true,
+            }),
+        ]).start();
+
+        // 🎈 Flutuação contínua, enquanto ele estiver na tela
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(flutuarMascote, {
+                    toValue: -8,
+                    duration: 500,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(flutuarMascote, {
+                    toValue: 0,
+                    duration: 500,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ]),
+        ).start();
+
+        // 👋 Some suavemente depois de um tempinho
+        setTimeout(() => {
+            Animated.timing(opacidadeMascote, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }).start(() => setAvisoVisivel(false));
+        }, 2700);
+    };;
     // 2. QUANDO O TEMPO ZERA (só vigia secondsLeft, evitando disparo duplo)
     useEffect(() => {
         if (secondsLeft !== 0) return;
@@ -102,15 +158,17 @@ export default function TimerScreen({ navigation }) {
             // 🔔 Mostra um aviso rápido, que some sozinho (sem precisar tocar em nada)
             if (currentMode === "foco") {
                 if (continuarAutomaticamente) {
-                    mostrarAviso("🔥 Bloco concluído!", "Hora de uma pausa curta.");
+                    mostrarAviso("🔥 Bloco concluído!", "Hora de uma pausa curta.", "robot-excited");
                 } else {
                     mostrarAviso(
                         "🎉 Ciclo completo!",
                         `Você completou ${CICLOS_ATE_PARAR} blocos de foco! Reinicie quando estiver pronta para a pausa longa.`,
+                        "robot-love",
+                        "#FFD700",
                     );
                 }
             } else {
-                mostrarAviso("☕ Pausa terminada!", "Hora de voltar ao fluxo de foco!");
+                mostrarAviso("☕ Pausa terminada!", "Hora de voltar ao fluxo de foco!", "robot-happy", "#00BA4A");
             }
 
             return continuarAutomaticamente; // Se for false, o cronômetro para e espera ação do usuário
@@ -164,10 +222,26 @@ export default function TimerScreen({ navigation }) {
     return (
         <SafeAreaView style={s.container}>
             {avisoVisivel && (
-                <View style={s.avisoToast}>
-                    <Text style={s.avisoTitulo}>{avisoConteudo.titulo}</Text>
-                    <Text style={s.avisoSubtitulo}>{avisoConteudo.subtitulo}</Text>
-                </View>
+                <Animated.View
+                    style={[
+                        s.avisoMascoteContainer,
+                        {
+                            opacity: opacidadeMascote,
+                            transform: [{ scale: escalaMascote }, { translateY: flutuarMascote }],
+                        },
+                    ]}
+                >
+                    <View
+                        style={[s.mascoteGlow, { backgroundColor: avisoConteudo.cor, shadowColor: avisoConteudo.cor }]}
+                    >
+                        <MaterialCommunityIcons name={avisoConteudo.icone} size={48} color="#FFF" />
+                    </View>
+
+                    <View style={s.avisoTextoFundo}>
+                        <Text style={s.avisoTitulo}>{avisoConteudo.titulo}</Text>
+                        <Text style={s.avisoSubtitulo}>{avisoConteudo.subtitulo}</Text>
+                    </View>
+                </Animated.View>
             )}
             {/* Header */}
             <View style={s.header}>
@@ -384,17 +458,30 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderColor: "#221F4D",
     },
-    avisoToast: {
+    avisoMascoteContainer: {
         position: "absolute",
-        top: 70,
-        left: 24,
-        right: 24,
-        backgroundColor: "#221F4D",
-        borderRadius: 14,
-        padding: 14,
-        borderWidth: 1,
-        borderColor: "#6C5CE7",
+        top: 60,
+        left: 0,
+        right: 0,
+        alignItems: "center",
         zIndex: 10,
+    },
+    mascoteGlow: {
+        width: 84,
+        height: 84,
+        borderRadius: 42,
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 10,
+        shadowOpacity: 0.6,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    avisoTextoFundo: {
+        backgroundColor: "#15162ECC",
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         alignItems: "center",
     },
     avisoTitulo: { color: "#FFF", fontWeight: "bold", fontSize: 14 },
