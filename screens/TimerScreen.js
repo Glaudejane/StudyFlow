@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Modal, Animated, Easing } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useAudioPlayer, AudioSource } from "expo-audio";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Modal } from "react-native";
+import { useAudioPlayer } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAviso } from "../context/AvisoContext";
 
@@ -16,18 +15,7 @@ export default function TimerScreen({ navigation }) {
     const [configVisivel, setConfigVisivel] = useState(false);
     const [ciclosFoco, setCiclosFoco] = useState(0); // Contador de ciclos de foco concluídos
     const CICLOS_ATE_PARAR = 4; // Número de ciclos de foco antes de uma pausa longa
-    const [avisoVisivel, setAvisoVisivel] = useState(false);
-    const [avisoConteudo, setAvisoConteudo] = useState({
-        titulo: "",
-        subtitulo: "",
-        icone: "robot-happy",
-        cor: "#6C5CE7",
-    });
 
-    // 🤖 "Controles remotos" da animação do robô
-    const escalaMascote = useRef(new Animated.Value(0)).current;
-    const opacidadeMascote = useRef(new Animated.Value(0)).current;
-    const flutuarMascote = useRef(new Animated.Value(0)).current;
     // 🎵 NOVA MANEIRA: Criando os players de áudio nativos e modernos
     // Eles já carregam os arquivos locais da pasta assets perfeitamente!
     const alarmPlayer = useAudioPlayer(require("../assets/alarm.mp3"));
@@ -49,6 +37,7 @@ export default function TimerScreen({ navigation }) {
                 setFocoMinutos(focoCarregado);
                 setPausaMinutos(pausaCarregada);
                 setSecondsLeft(focoCarregado * 60);
+                setSecondsLeft(5);
             } catch (error) {
                 console.log("Erro ao carregar configuracoes do timer:", error);
             }
@@ -391,34 +380,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderColor: "#221F4D",
     },
-    avisoMascoteContainer: {
-        position: "absolute",
-        top: 60,
-        left: 0,
-        right: 0,
-        alignItems: "center",
-        zIndex: 10,
-    },
-    mascoteGlow: {
-        width: 84,
-        height: 84,
-        borderRadius: 42,
-        alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 10,
-        shadowOpacity: 0.6,
-        shadowRadius: 20,
-        elevation: 10,
-    },
-    avisoTextoFundo: {
-        backgroundColor: "#15162ECC",
-        borderRadius: 14,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        alignItems: "center",
-    },
-    avisoTitulo: { color: "#FFF", fontWeight: "bold", fontSize: 14 },
-    avisoSubtitulo: { color: "#8E8EA9", fontSize: 12, marginTop: 4, textAlign: "center" },
     opcaoChipSelecionada: { borderColor: "#6C5CE7", backgroundColor: "#6C5CE7" },
     opcaoTexto: { color: "#8E8EA9", fontWeight: "bold" },
     opcaoTextoSelecionado: { color: "#FFF" },
