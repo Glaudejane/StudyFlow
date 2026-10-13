@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Modal, A
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAudioPlayer, AudioSource } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAviso } from "../context/AvisoContext";
 
 export default function TimerScreen({ navigation }) {
     const s = styles;
@@ -33,8 +34,10 @@ export default function TimerScreen({ navigation }) {
     const lofiPlayer = useAudioPlayer(require("../assets/lofi.mp3"));
 
     // Configura o seu Lo-Fi para tocar em loop eterno de fundo
-    lofiPlayer.loop = true;
-    lofiPlayer.volume = 0.4; // Volume confortável
+    useEffect(() => {
+        lofiPlayer.loop = true;
+        lofiPlayer.volume = 0.4; // Volume confortável
+    }, []);
 
     useEffect(() => {
         const carregarConfiguracoes = async () => {
@@ -77,103 +80,55 @@ export default function TimerScreen({ navigation }) {
         return () => clearInterval(interval);
     }, [isActive, secondsLeft]);
 
-    const mostrarAviso = (titulo, subtitulo, icone, cor) => {
-        setAvisoConteudo({ titulo, subtitulo, icone, cor });
-        setAvisoVisivel(true);
+    const { mostrarAviso } = useAviso();
 
-        // Reseta a animação antes de começar, caso o robô apareça de novo rapidinho
-        escalaMascote.setValue(0);
-        opacidadeMascote.setValue(0);
-
-        // 🐇 Entrada: o robô "salta" na tela (efeito elástico/mola)
-        Animated.parallel([
-            Animated.spring(escalaMascote, {
-                toValue: 1,
-                friction: 4,
-                tension: 80,
-                useNativeDriver: true,
-            }),
-            Animated.timing(opacidadeMascote, {
-                toValue: 1,
-                duration: 250,
-                useNativeDriver: true,
-            }),
-        ]).start();
-
-        // 🎈 Flutuação contínua, enquanto ele estiver na tela
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(flutuarMascote, {
-                    toValue: -8,
-                    duration: 500,
-                    easing: Easing.inOut(Easing.ease),
-                    useNativeDriver: true,
-                }),
-                Animated.timing(flutuarMascote, {
-                    toValue: 0,
-                    duration: 500,
-                    easing: Easing.inOut(Easing.ease),
-                    useNativeDriver: true,
-                }),
-            ]),
-        ).start();
-
-        // 👋 Some suavemente depois de um tempinho
-        setTimeout(() => {
-            Animated.timing(opacidadeMascote, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
-            }).start(() => setAvisoVisivel(false));
-        }, 2700);
-    };;
     // 2. QUANDO O TEMPO ZERA (só vigia secondsLeft, evitando disparo duplo)
     useEffect(() => {
         if (secondsLeft !== 0) return;
+        if (!isActive) return; // o cronômetro não estava rodando, não faz nada
 
-        setIsActive((wasActive) => {
-            if (!wasActive) return false; // já tinha sido tratado, não faz nada de novo
+        // 🔔 Reseta o alarme pro início e toca
+        alarmPlayer.seekTo(0);
+        alarmPlayer.play();
 
-            // 🔔 Toca o alarme moderno!
-            alarmPlayer.play();
+        let continuarAutomaticamente = true;
 
-            let continuarAutomaticamente = true;
+        if (currentMode === "foco") {
+            registrarTempoEstudado();
 
-            if (currentMode === "foco") {
-                registrarTempoEstudado(); // Registra o tempo estudado ao concluir um bloco de foco
+            const novoCiclo = ciclosFoco + 1;
 
-                const novoCiclo = ciclosFoco + 1;
-
-                if (novoCiclo >= CICLOS_ATE_PARAR) {
-                    continuarAutomaticamente = false;
-                    setCiclosFoco(0);
-                } else {
-                    setCiclosFoco(novoCiclo);
-                }
-            }
-            // Alterna entre foco e pausa automaticamente
-            setCurrentMode((prevMode) => (prevMode === "foco" ? "pausa" : "foco"));
-            setSecondsLeft((prevSegundos) => (currentMode === "foco" ? pausaMinutos * 60 : focoMinutos * 60));
-
-            // 🔔 Mostra um aviso rápido, que some sozinho (sem precisar tocar em nada)
-            if (currentMode === "foco") {
-                if (continuarAutomaticamente) {
-                    mostrarAviso("🔥 Bloco concluído!", "Hora de uma pausa curta.", "robot-excited", "#FF6B6B");
-                } else {
-                    mostrarAviso(
-                        "🎉 Ciclo completo!",
-                        `Você completou ${CICLOS_ATE_PARAR} blocos de foco! Reinicie quando estiver pronta para a pausa longa.`,
-                        "robot-love",
-                        "#FFD700",
-                    );
-                }
+            if (novoCiclo >= CICLOS_ATE_PARAR) {
+                continuarAutomaticamente = false;
+                setCiclosFoco(0);
             } else {
-                mostrarAviso("☕ Pausa terminada!", "Hora de voltar ao fluxo de foco!", "robot-happy", "#00BA4A");
+                setCiclosFoco(novoCiclo);
             }
+        }
 
-            return continuarAutomaticamente; // Se for false, o cronômetro para e espera ação do usuário
-        });
+        // Alterna entre foco e pausa automaticamente
+        const proximoModo = currentMode === "foco" ? "pausa" : "foco";
+        setCurrentMode(proximoModo);
+        setSecondsLeft(proximoModo === "foco" ? focoMinutos * 60 : pausaMinutos * 60);
+
+        // Aviso global (aparece em qualquer tela)
+        if (currentMode === "foco") {
+            if (continuarAutomaticamente) {
+                mostrarAviso("Bloco concluído!", "Hora de uma pausa curta.", "robot-excited", "#FF7A00");
+            } else {
+                mostrarAviso(
+                    "Ciclo completo!",
+                    `Você completou ${CICLOS_ATE_PARAR} blocos de foco! Reinicie quando estiver pronta.`,
+                    "robot-love",
+                    "#FFD700",
+                );
+            }
+        } else {
+            mostrarAviso("Pausa terminada!", "Hora de voltar ao fluxo de foco!", "robot-happy", "#00BA4A");
+        }
+        setIsActive(continuarAutomaticamente);
     }, [secondsLeft]);
+
     const formatTime = () => {
         const mins = Math.floor(secondsLeft / 60);
         const secs = secondsLeft % 60;
@@ -221,28 +176,6 @@ export default function TimerScreen({ navigation }) {
 
     return (
         <SafeAreaView style={s.container}>
-            {avisoVisivel && (
-                <Animated.View
-                    style={[
-                        s.avisoMascoteContainer,
-                        {
-                            opacity: opacidadeMascote,
-                            transform: [{ scale: escalaMascote }, { translateY: flutuarMascote }],
-                        },
-                    ]}
-                >
-                    <View
-                        style={[s.mascoteGlow, { backgroundColor: avisoConteudo.cor, shadowColor: avisoConteudo.cor }]}
-                    >
-                        <MaterialCommunityIcons name={avisoConteudo.icone} size={48} color="#FFF" />
-                    </View>
-
-                    <View style={s.avisoTextoFundo}>
-                        <Text style={s.avisoTitulo}>{avisoConteudo.titulo}</Text>
-                        <Text style={s.avisoSubtitulo}>{avisoConteudo.subtitulo}</Text>
-                    </View>
-                </Animated.View>
-            )}
             {/* Header */}
             <View style={s.header}>
                 <TouchableOpacity style={s.backButton} onPress={() => navigation.navigate("Início")}>
