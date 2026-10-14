@@ -79,4 +79,80 @@ export const lessonsPythonData = {
                 "Excelente! Dicionários usam chaves {} e separam a propriedade (chave) do conteúdo (valor) usando dois pontos. Perfeito para estruturar objetos complexos!",
         },
     },
+    py5: {
+        title: "Funções",
+        subtitle: "Módulo 5 • Dominando Python",
+        content:
+            "Imagine que você precisa calcular o desconto de um produto em vários lugares do app. Em vez de repetir o mesmo código toda hora, você cria uma Função: um bloco de código com nome, que você escreve uma vez e usa quantas vezes quiser.\n\nEm Python, usamos a palavra 'def' para criar uma função (ex: def saudacao(nome):). Os dados que a função recebe são chamados de parâmetros, e o resultado que ela devolve usa a palavra 'return'. Depois, para usá-la, basta chamá-la pelo nome: saudacao('Ana'). O recuo do código (a indentação) mostra o que pertence à função.",
+        iaInsight:
+            "🤖 Insight de IA: Se uma função está fazendo coisas demais, peça para a IA ajudar a dividir em funções menores. Uma boa função faz uma coisa só, e tem um nome que explica isso.",
+        quiz: {
+            question: "Qual palavra usamos em Python para criar uma função?",
+            correctId: "B",
+            options: [
+                { id: "A", text: "function nome():" },
+                { id: "B", text: "def nome():" },
+                { id: "C", text: "create nome():" },
+            ],
+            explanation:
+                "Isso mesmo! Em Python, 'def' (de 'define') é a palavra que cria uma função. Depois é só chamá-la pelo nome sempre que precisar.",
+        },
+    },
+    py6: {
+        title: "Strings e Métodos de Texto",
+        subtitle: "Módulo 6 • Dominando Python",
+        content:
+            "Strings são textos entre aspas, e quase todo app lida com elas: nomes, mensagens, e-mails. Python tem vários métodos prontos para trabalhar com texto. Por exemplo, 'Ana'.upper() devolve 'ANA', e '  oi  '.strip() remove os espaços das pontas. O método split() separa um texto em uma lista: 'a,b,c'.split(',') vira ['a', 'b', 'c'].\n\nPara montar frases com variáveis, use f-strings: coloque um 'f' antes das aspas e escreva as variáveis entre chaves. Se nome = 'Ana', então f'Olá, {nome}!' vira 'Olá, Ana!'. É a forma mais limpa de juntar texto e dados.",
+        iaInsight:
+            "🤖 Insight de IA: Em vez de juntar textos com o sinal de +, prefira f-strings. O código fica mais legível, e tanto a IA quanto outras pessoas entendem mais rápido o que você quis fazer.",
+        quiz: {
+            question: "Qual será o resultado de f'Olá, {nome}!' se nome = 'Ana'?",
+            correctId: "C",
+            options: [
+                { id: "A", text: "Olá, {nome}!" },
+                { id: "B", text: "Olá, nome!" },
+                { id: "C", text: "Olá, Ana!" },
+            ],
+            explanation:
+                "Exatamente! A f-string troca o que está entre chaves pelo valor da variável. Por isso {nome} vira Ana.",
+        },
+    },
+    py7: {
+        title: "Tratamento de Erros",
+        subtitle: "Módulo 7 • Dominando Python",
+        content:
+            "Todo programa encontra erros: um número digitado como texto, um arquivo que não existe, uma divisão por zero. Se você não se preparar, o programa trava. Em Python, usamos 'try' e 'except' para lidar com isso sem quebrar.\n\nO código que pode dar problema vai dentro do 'try'. Se der erro, o Python pula para o 'except' e executa o plano B. Por exemplo: try: numero = int(texto) e, no except ValueError: print('Digite só números!'). Assim, em vez de travar, o app responde com uma mensagem amigável. É isso que faz um aplicativo parecer profissional.",
+        iaInsight:
+            "🤖 Insight de IA: Quando um erro aparecer, copie a mensagem inteira (a última linha costuma dizer o tipo, como ValueError) e peça para a IA explicar a causa antes de pedir a correção. Entender o erro ensina mais do que só consertar.",
+        quiz: {
+            question: "Para que serve o bloco 'except' em Python?",
+            correctId: "A",
+            options: [
+                { id: "A", text: "Para executar um plano B quando acontece um erro dentro do 'try'" },
+                { id: "B", text: "Para repetir o código do 'try' para sempre" },
+                { id: "C", text: "Para apagar o erro do código-fonte" },
+            ],
+            explanation:
+                "Perfeito! O 'except' recebe o controle quando algo dá errado no 'try', e deixa seu programa responder com calma em vez de travar.",
+        },
+    },
+    py8: {
+        title: "Arquivos e Módulos",
+        subtitle: "Módulo 8 • Dominando Python",
+        content:
+            "Até agora, tudo que seu programa guardava sumia quando ele fechava. Para guardar dados de forma permanente, usamos arquivos. Em Python, a função open() abre um arquivo, e o jeito mais seguro é usar 'with', que fecha o arquivo sozinho ao terminar: with open('notas.txt', 'w') as arquivo: arquivo.write('Oi!'). O 'w' significa escrever, e o 'r' significa ler.\n\nOutra ideia poderosa são os módulos: código pronto, feito por outras pessoas, que você traz para o seu programa com 'import'. Por exemplo, import random dá acesso a sorteios, e import math a funções matemáticas. Você não precisa reinventar nada: Python já vem com uma biblioteca enorme, e existem milhares de outras para instalar.",
+        iaInsight:
+            "🤖 Insight de IA: Antes de instalar uma biblioteca nova, pergunte à IA se o Python já tem algo pronto para o que você precisa. Muitas vezes a solução já vem de graça com a linguagem.",
+        quiz: {
+            question: "Como trazemos o módulo 'random' para usar no seu programa?",
+            correctId: "C",
+            options: [
+                { id: "A", text: "include random" },
+                { id: "B", text: "require random" },
+                { id: "C", text: "import random" },
+            ],
+            explanation:
+                "Isso mesmo! Em Python usamos 'import' para trazer módulos prontos, e a partir daí você já pode usar tudo o que eles oferecem.",
+        },
+    },
 };

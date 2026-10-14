@@ -37,6 +37,38 @@ import { Feather, FontAwesome5 } from "@expo/vector-icons";
             status: "liberado",
             aulas: ["Manipulação de Listas", "Chave e Valor com Dicionários"],
         },
+        {
+            id: "py5",
+            numero: "MÓDULO 5",
+            titulo: "Funções",
+            descricao: "Organize seu código em blocos reutilizáveis e evite repetir a mesma coisa várias vezes.",
+            status: "liberado",
+            aulas: ["Criando Funções com def", "Parâmetros e return"],
+        },
+        {
+            id: "py6",
+            numero: "MÓDULO 6",
+            titulo: "Strings e Métodos de Texto",
+            descricao: "Aprenda a manipular textos com métodos prontos e a montar frases com f-strings.",
+            status: "liberado",
+            aulas: ["Métodos de String", "Formatando com f-strings"],
+        },
+        {
+            id: "py7",
+            numero: "MÓDULO 7",
+            titulo: "Tratamento de Erros",
+            descricao: "Faça seu programa lidar com problemas sem travar, usando try e except.",
+            status: "liberado",
+            aulas: ["Entendendo os Erros", "try e except na prática"],
+        },
+        {
+            id: "py8",
+            numero: "MÓDULO 8",
+            titulo: "Arquivos e Módulos",
+            descricao: "Guarde dados de forma permanente e use código pronto com import.",
+            status: "liberado",
+            aulas: ["Lendo e Escrevendo Arquivos", "Usando Módulos com import"],
+        },
     ];
 
 export default function PythonWeeksScreen({ navigation }) {
