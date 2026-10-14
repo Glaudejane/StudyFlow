@@ -69,6 +69,22 @@ import { Feather, FontAwesome5 } from "@expo/vector-icons";
             status: "liberado",
             aulas: ["Lendo e Escrevendo Arquivos", "Usando Módulos com import"],
         },
+        {
+            id: "py9",
+            numero: "MÓDULO 9",
+            titulo: "Classes e Objetos",
+            descricao: "Entenda a Orientação a Objetos e crie seus próprios moldes de dados e ações.",
+            status: "liberado",
+            aulas: ["O que é uma Classe", "O método __init__ e o self"],
+        },
+        {
+            id: "py10",
+            numero: "MÓDULO 10",
+            titulo: "Mini Projeto: Quiz no Terminal",
+            descricao: "Junte tudo o que aprendeu em um projeto completo, dividindo-o em partes pequenas.",
+            status: "liberado",
+            aulas: ["Planejando o Projeto", "Juntando Tudo"],
+        },
     ];
 
 export default function PythonWeeksScreen({ navigation }) {

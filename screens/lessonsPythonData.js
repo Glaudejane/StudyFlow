@@ -155,4 +155,42 @@ export const lessonsPythonData = {
                 "Isso mesmo! Em Python usamos 'import' para trazer módulos prontos, e a partir daí você já pode usar tudo o que eles oferecem.",
         },
     },
+    py9: {
+        title: "Classes e Objetos",
+        subtitle: "Módulo 9 • Dominando Python",
+        content:
+            "Até agora usamos dicionários para guardar os dados de um aluno ou de um livro. Mas e se quisermos guardar os dados E também as ações juntos? Para isso existe a Orientação a Objetos. Uma Classe é um molde: ela descreve como algo deve ser. Um Objeto é uma cópia criada a partir desse molde.\n\nEm Python, criamos uma classe com a palavra 'class'. O método especial __init__ prepara cada objeto novo, e o 'self' representa o próprio objeto. Exemplo: class Aluno: def __init__(self, nome): self.nome = nome. Para criar um objeto: ana = Aluno('Ana'). Agora ana.nome vale 'Ana'. Você pode criar quantos alunos quiser, todos seguindo o mesmo molde.",
+        iaInsight:
+            "🤖 Insight de IA: Pense nas classes como os 'substantivos' do seu app (Aluno, Produto, Pedido) e nos métodos como os 'verbos' (comprar, estudar, enviar). Se você consegue descrever seu app assim, a IA te ajuda a transformar isso em código.",
+        quiz: {
+            question: "Em Python, o que é uma Classe?",
+            correctId: "B",
+            options: [
+                { id: "A", text: "Uma variável que guarda apenas números" },
+                { id: "B", text: "Um molde que descreve como os objetos devem ser" },
+                { id: "C", text: "Um comando que repete um código várias vezes" },
+            ],
+            explanation:
+                "Isso mesmo! A classe é o molde, e cada objeto criado a partir dela é uma cópia que segue esse molde, com seus próprios dados.",
+        },
+    },
+    py10: {
+        title: "Mini Projeto: Quiz no Terminal",
+        subtitle: "Módulo 10 • Dominando Python",
+        content:
+            "Chegou a hora de juntar tudo! Vamos planejar um mini jogo de quiz que roda no terminal. Ele vai usar quase tudo que você aprendeu: uma lista de dicionários com as perguntas e respostas (módulo 4), um loop for para percorrer cada pergunta (módulo 3), um if para conferir se a resposta está certa (módulo 2), uma função para fazer cada pergunta (módulo 5), f-strings para mostrar a pontuação (módulo 6) e try e except para lidar com respostas inválidas (módulo 7).\n\nO segredo dos projetos maiores é dividir em partes pequenas: primeiro as perguntas, depois a função que pergunta, depois o loop, depois a pontuação. Teste cada parte antes de juntar. Assim, quando algo der errado, você sabe exatamente onde procurar.",
+        iaInsight:
+            "🤖 Insight de IA: Ao pedir ajuda da IA em um projeto, peça uma parte de cada vez e teste antes de pedir a próxima. Assim você entende o que foi escrito e encontra os erros bem mais rápido.",
+        quiz: {
+            question: "Qual é a melhor estratégia para construir um projeto maior?",
+            correctId: "A",
+            options: [
+                { id: "A", text: "Dividir em partes pequenas e testar cada uma antes de juntar" },
+                { id: "B", text: "Escrever tudo de uma vez e só testar no final" },
+                { id: "C", text: "Copiar um código pronto sem tentar entender" },
+            ],
+            explanation:
+                "Perfeito! Dividir e testar por partes é o que programadores experientes fazem. Quando algo quebra, você já sabe em qual pedaço procurar.",
+        },
+    },
 };
