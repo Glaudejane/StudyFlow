@@ -16,6 +16,20 @@ import { Feather, FontAwesome5 } from "@expo/vector-icons";
         { id: "app4", title: "Calculadora", icon: "calculator", desc: "Lógica matemática e grids com Flexbox." },
         { id: "app5", title: "Calendário", icon: "calendar-alt", desc: "Manipulação de datas e seletores nativos." },
         { id: "app6", title: "Jogo Matemático", icon: "gamepad", desc: "Gamificação e números aleatórios." },
+        { id: "app7", title: "Lista de Tarefas", icon: "tasks", desc: "Persistência local com AsyncStorage." },
+        { id: "app8", title: "App de Clima", icon: "cloud-sun", desc: "Consumo de API em tempo real com fetch." },
+        { id: "app9", title: "Abas de Navegação", icon: "th-large", desc: "Bottom Tabs e arquitetura de telas." },
+        { id: "app10", title: "Modo Escuro", icon: "moon", desc: "Temas dinâmicos com useColorScheme." },
+        { id: "app11", title: "Câmera e Fotos", icon: "camera", desc: "Uso da câmera e galeria com ImagePicker." },
+        { id: "app12", title: "Leitor QR Code", icon: "qrcode", desc: "Escaneamento de códigos em tempo real." },
+        { id: "app13", title: "Notificações Push", icon: "bell", desc: "Lembretes e alertas locais agendados." },
+        { id: "app14", title: "Biometria", icon: "fingerprint", desc: "Autenticação por Face ID ou Digital." },
+        { id: "app15", title: "Estado Global", icon: "database", desc: "Gerenciamento de dados com Zustand." },
+        { id: "app16", title: "Mapas e GPS", icon: "map-marked-alt", desc: "Geolocalização e marcadores nativos." },
+        { id: "app17", title: "Chatbot com IA", icon: "robot", desc: "Interface de conversa conectada a APIs de IA." },
+        { id: "app18", title: "App Offline-First", icon: "wifi", desc: "Bancos locais com sincronização na nuvem." },
+        { id: "app19", title: "Animações Fluídas", icon: "running", desc: "Gestos e animações com Reanimated." },
+        { id: "app20", title: "Build de Produção", icon: "rocket", desc: "Preparação e geração do pacote para as lojas." },
     ];
 
 export default function BuildAppsScreen({ navigation }) {
