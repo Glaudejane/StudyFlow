@@ -193,23 +193,4 @@ export const lessonsPythonData = {
                 "Perfeito! Dividir e testar por partes é o que programadores experientes fazem. Quando algo quebra, você já sabe em qual pedaço procurar.",
         },
     },
-    py10: {
-        title: "Mini Projeto: Quiz no Terminal",
-        subtitle: "Módulo 10 • Dominando Python",
-        content:
-            "Chegou a hora de juntar tudo! Vamos planejar um mini jogo de quiz que roda no terminal. Ele vai usar quase tudo que você aprendeu: uma lista de dicionários com as perguntas e respostas (módulo 4), um loop for para percorrer cada pergunta (módulo 3), um if para conferir se a resposta está certa (módulo 2), uma função para fazer cada pergunta (módulo 5), f-strings para mostrar a pontuação (módulo 6) e try e except para lidar com respostas inválidas (módulo 7).\n\nO segredo dos projetos maiores é dividir em partes pequenas: primeiro as perguntas, depois a função que pergunta, depois o loop, depois a pontuação. Teste cada parte antes de juntar. Assim, quando algo der errado, você sabe exatamente onde procurar.",
-        iaInsight:
-            "🤖 Insight de IA: Ao pedir ajuda da IA em um projeto, peça uma parte de cada vez e teste antes de pedir a próxima. Assim você entende o que foi escrito e encontra os erros bem mais rápido.",
-        quiz: {
-            question: "Qual é a melhor estratégia para construir um projeto maior?",
-            correctId: "A",
-            options: [
-                { id: "A", text: "Dividir em partes pequenas e testar cada uma antes de juntar" },
-                { id: "B", text: "Escrever tudo de uma vez e só testar no final" },
-                { id: "C", text: "Copiar um código pronto sem tentar entender" },
-            ],
-            explanation:
-                "Perfeito! Dividir e testar por partes é o que programadores experientes fazem. Quando algo quebra, você já sabe em qual pedaço procurar.",
-        },
-    },
 };

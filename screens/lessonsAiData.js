@@ -156,7 +156,7 @@ export const lessonsAiData = {
     },
 
     m8: {
-        title: "Modelos Open-Source vs Propriétarios",
+        title: "Modelos Open-Source vs Proprietários",
         subtitle: "Módulo 8 • Inteligência Artificial",
         content:
             "No ecossistema moderno de IA, existem dois grandes caminhos de modelos: os Proprietários e os Open-Source (Código Aberto).\n\nModelos Proprietários (como Claude da Anthropic e GPT da OpenAI) são acessados como serviço via API. Você paga pelo uso, mas conta com alta performance sem precisar gerenciar infraestrutura robusta de servidores.\n\nJá os Modelos Open-Source (como Llama da Meta, DeepSeek e Mistral) disponibilizam os pesos do modelo. Isso permite que você faça o download e rode a IA no seu próprio servidor ou na nuvem privada, garantindo total privacidade dos dados e independência de terceiros.",
@@ -316,7 +316,7 @@ export const lessonsAiData = {
     },
 
     m16: {
-        title: "Segurança: Prompt Injection e Moderacao",
+        title: "Segurança: Prompt Injection e Moderação",
         subtitle: "Módulo 16 • Inteligência Artificial",
         content:
             "Assim como sistemas web sofrem com 'SQL Injection', sistemas de IA sofrem com o 'Prompt Injection'. Ocorre quando um usuário mal-intencionado tenta enganar as instruções de System para fazer a IA revelar senhas, burlar regras ou gerar conteúdo inadequado.\n\nPara proteger seu app: 1) Valide e sanitize as entradas de texto; 2) Utilize APIs de Moderação gratuitas para checar frases ofensivas antes de enviar ao modelo; 3) Nunca coloque chaves de API secretas (API Keys) dentro do código do aplicativo mobile.",
