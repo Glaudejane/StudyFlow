@@ -250,4 +250,137 @@ export const lessonsPythonData = {
                 "Isso mesmo! A classe entre parênteses é a mãe. Professor herda os atributos e métodos de Pessoa, e ainda pode acrescentar os seus.",
         },
     },
+    py14: {
+        title: "Encapsulamento e Atributos Privados",
+        subtitle: "Módulo 14 • Dominando Python",
+        content:
+            "Na programação, encapsulamento é a ideia de proteger os dados internos de uma classe para que eles não sejam modificados por engano de fora. Em algumas linguagens isso é rígido, mas em Python usamos uma convenção: colocamos um underline antes do nome do atributo, como self._saldo ou self.__senha.\n\nAtributos com dois underlines (self.__senha) sofrem uma camuflagem interna chamada name mangling, dificultando o acesso direto de fora da classe. Para ler ou alterar esses dados com segurança, criamos métodos especiais chamados getters e setters (ou usamos a anotação @property), que permitem validar o dado antes de aceitá-lo.",
+        iaInsight:
+            "🤖 Insight de IA: Peça à IA para explicar o conceito de @property em Python com um exemplo de conta bancária. Ela vai te mostrar como proteger valores (como impedir que um saldo fique negativo) de forma muito elegante.",
+        quiz: {
+            question: "Qual é a convenção em Python para indicar que um atributo é interno/privado e não deve ser mexido diretamente de fora?",
+            correctId: "A",
+            options: [
+                { id: "A", text: "Usar underline antes do nome, como _saldo ou __senha" },
+                { id: "B", text: "Escrever o nome do atributo inteiro em letras maiúsculas" },
+                { id: "C", text: "Colocar o símbolo de cerquilha (#) na frente" },
+            ],
+            explanation:
+                "Perfeito! O uso de sublinhados (_ ou __) sinaliza para outros desenvolvedores (e para o Python) que o dado faz parte do funcionamento interno da classe.",
+        },
+    },
+    py15: {
+        title: "Ambientes Virtuais (venv) e Gerenciador Pip",
+        subtitle: "Módulo 15 • Dominando Python",
+        content:
+            "Até agora você usou apenas o que vem instalado no Python. Mas e quando quiser instalar ferramentas criadas por outros programadores? É aí que entra o Pip (gerenciador de pacotes) e os Ambientes Virtuais (venv).\n\nCada projeto Python deve ter sua própria caixa de areia isolada (a venv). Assim, se você instalar a versão 1.0 de uma biblioteca num projeto e a versão 2.0 num projeto diferente, uma não atrapalha a outra. Criamos com python -m venv venv, ativamos com source venv/bin/activate (no Mac/Linux) ou venv\\Scripts\\activate (no Windows), e instalamos pacotes com pip install nome_do_pacote.",
+        iaInsight:
+            "🤖 Insight de IA: Sempre que for rodar um projeto Python novo da internet, pergunte à IA: 'Quais comandos rodo para criar a venv e instalar os requisitos?' Ela te dá o passo a passo exato para o seu sistema operacional.",
+        quiz: {
+            question: "Para que serve criar um ambiente virtual (venv) em um projeto Python?",
+            correctId: "B",
+            options: [
+                { id: "A", text: "Para acelerar a velocidade do processador do computador" },
+                { id: "B", text: "Para isolar as dependências e bibliotecas de cada projeto separadamente" },
+                { id: "C", text: "Para apagar os arquivos temporários automaticamente toda semana" },
+            ],
+            explanation:
+                "Isso mesmo! A venv isola o ambiente para que as bibliotecas de um projeto não entrem em conflito com as de outro.",
+        },
+    },
+    py16: {
+        title: "Consumindo APIs com Requests",
+        subtitle: "Módulo 16 • Dominando Python",
+        content:
+            "Uma API é como um garçom: você faz um pedido ao servidor de outro sistema, ele vai na cozinha e te traz a resposta (geralmente em JSON). A biblioteca mais famosa em Python para fazer isso é a requests.\n\nCom requests.get('https://api.exemplo.com/dados'), seu script faz uma requisição HTTP para a internet. O resultado vem em um objeto de resposta onde verificamos o status_code (200 significa sucesso) e usamos .json() para transformar o conteúdo diretamente em dicionários Python prontos para uso.",
+        iaInsight:
+            "🤖 Insight de IA: Peça à IA: 'Me dê um código simples com requests para consultar a cotação atual do dólar ou o clima de uma cidade'. Você terá um script funcional em segundos para testar.",
+        quiz: {
+            question: "O que indica o código de status HTTP 200 ao fazer uma requisição com requests?",
+            correctId: "C",
+            options: [
+                { id: "A", text: "Que ocorreu um erro interno no servidor" },
+                { id: "B", text: "Que a página ou API não foi encontrada (Not Found)" },
+                { id: "C", text: "Que a requisição foi bem-sucedida" },
+            ],
+            explanation:
+                "Exatamente! O código 200 é o padrão universal da web para informar que deu tudo certo na requisição.",
+        },
+    },
+    py17: {
+        title: "Web Scraping com BeautifulSoup",
+        subtitle: "Módulo 17 • Dominando Python",
+        content:
+            "Web scraping é a arte de extrair dados de páginas da web de forma automatizada. Quando não existe uma API oficial, usamos o Python para baixar o código HTML de um site e ler suas informações.\n\nCombinamos a biblioteca requests (para baixar a página) com o BeautifulSoup (para navegar pelo HTML). Com comandos como soup.find('h1') ou soup.find_all('a'), conseguimos isolar títulos, preços, notícias e tabelas inteiras diretamente do código da página.",
+        iaInsight:
+            "🤖 Insight de IA: Ao fazer web scraping, lembre-se de pedir à IA: 'Como adiciono um User-Agent nos headers do requests?'. Isso evita que o site bloqueie seu script achando que você é um invasor mal intencionado.",
+        quiz: {
+            question: "Qual é a principal utilidade da biblioteca BeautifulSoup em Python?",
+            correctId: "A",
+            options: [
+                { id: "A", text: "Analisar e extrair dados de dentro de estruturas HTML e XML" },
+                { id: "B", text: "Criar interfaces gráficas e botões para aplicativos mobile" },
+                { id: "C", text: "Conectar e consultar dados em bancos relacionais como PostgreSQL" },
+            ],
+            explanation:
+                "Perfeito! O BeautifulSoup parseia o HTML facilitando a busca por tags, classes e IDs específicos.",
+        },
+    },
+    py18: {
+        title: "Análise de Dados com Pandas",
+        subtitle: "Módulo 18 • Dominando Python",
+        content:
+            "O Pandas é a biblioteca líder absoluta em Ciência de Dados e manipulação de tabelas em Python. Se você já abriu planilhas gigantes no Excel e travou tudo, o Pandas resolve isso com facilidade.\n\nA estrutura principal é o DataFrame, que funciona como uma tabela inteligente cheia de linhas e colunas. Com ele, você lê arquivos CSV ou Excel em uma linha (pd.read_csv()), filtra dados com condições simples, calcula médias, agrupa informações e limpa dados vazios num piscar de olhos.",
+        iaInsight:
+            "🤖 Insight de IA: Cole um trecho de uma tabela ou CSV de exemplo e pergunte: 'Como uso o Pandas para filtrar apenas as linhas onde o valor da coluna X é maior que 100?'. A IA te entrega o filtro pronto.",
+        quiz: {
+            question: "Como se chama a estrutura de dados principal do Pandas, que se parece com uma tabela de planilha?",
+            correctId: "B",
+            options: [
+                { id: "A", text: "Dictionary" },
+                { id: "B", text: "DataFrame" },
+                { id: "C", text: "TerminalGrid" },
+            ],
+            explanation:
+                "Isso mesmo! O DataFrame é a tabela bidimensional do Pandas equipada com linhas, colunas e centenas de métodos analíticos.",
+        },
+    },
+    py19: {
+        title: "Criando APIs Rápidas com FastAPI",
+        subtitle: "Módulo 19 • Dominando Python",
+        content:
+            "Agora que você sabe consumir APIs, que tal **criar a sua própria**? O FastAPI é o framework Python mais moderno e veloz para construir APIs e Back-Ends.\n\nCom poucas linhas de código usando decoradores como @app.get('/'), você cria rotas que respondem a requisições web. O FastAPI valida automaticamente os dados usando dicas de tipo (Type Hints) do Python e ainda gera uma documentação interativa lindíssima sozinha nos endereços /docs do seu servidor.",
+        iaInsight:
+            "🤖 Insight de IA: Peça à IA: 'Mostre um exemplo básico de FastAPI com uma rota POST que recebe um JSON com nome e idade e retorna uma confirmação'. Você verá como o código fica limpo e intuitivo.",
+        quiz: {
+            question: "O que o FastAPI gera automaticamente para você testar as rotas da sua API sem precisar de programas externos?",
+            correctId: "A",
+            options: [
+                { id: "A", text: "Uma documentação interativa nos links /docs ou /redoc" },
+                { id: "B", text: "Um arquivo compactado em formato ZIP com o código fonte" },
+                { id: "C", text: "Um aplicativo mobile nativo para iOS" },
+            ],
+            explanation:
+                "Excelente! O FastAPI gera documentações interativas baseadas em Swagger UI nativamente em /docs.",
+        },
+    },
+    py20: {
+        title: "Projeto Final de Integração em Python",
+        subtitle: "Módulo 20 • Dominando Python",
+        content:
+            "Você chegou ao topo da trilha de Python! 🚀 Neste projeto integrador, vamos juntar tudo o que você aprendeu: manipulação de arquivos ou JSON, orientação a objetos, tratamento de erros, uso de bibliotecas externas e estruturação de código limpo.\n\nO objetivo é construir uma aplicação completa de ponta a ponta (como um gerenciador de tarefas avançado com persistência, um consultor automatizado de dados da web ou uma mini API local). Celebre sua jornada: você adquiriu a base lógica e prática necessária para criar sistemas reais e automatizar o que quiser!",
+        iaInsight:
+            "🤖 Insight de IA: Use este momento final para criar seu próprio projeto pessoal! Peça à IA: 'Me ajude a planejar a arquitetura de um app em Python que faz [sua ideia aqui]'. Trabalhe em parceria com ela.",
+        quiz: {
+            question: "O que resume a conclusão desta trilha de Dominando Python?",
+            correctId: "B",
+            options: [
+                { id: "A", text: "Aprender apenas a decorar regras teóricas de sintaxe" },
+                { id: "B", text: "Integrar lógica, dados, objetos e ferramentas reais para resolver problemas do mundo real" },
+                { id: "C", text: "Parar de programar e usar apenas blocos visuais" },
+            ],
+            explanation:
+                "Parabéns! Python é uma ferramenta poderosa para transformar ideias em código funcional. Boa jornada nos seus projetos!",
+        },
+    },
 };
