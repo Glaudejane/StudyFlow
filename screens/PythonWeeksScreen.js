@@ -104,10 +104,10 @@ import { Feather, FontAwesome5 } from "@expo/vector-icons";
         {
             id: "py13",
             numero: "MÓDULO 13",
-            titulo: "POO: Classes e Objetos",
-            descricao: "Descubra a Programação Orientada a Objetos e aprenda a criar moldes com a palavra-chave class.",
+            titulo: "Herança: Reaproveitando Classes",
+            descricao: "Crie classes filhas que reaproveitam o código das classes mãe e sobrescrevem o que for diferente.",
             status: "liberado",
-            aulas: ["O que são Classes", "Atributos e o Método __init__"],
+            aulas: ["Classe Mãe e Classe Filha", "super() e Sobrescrita"],
         },
         {
             id: "py14",

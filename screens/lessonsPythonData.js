@@ -193,4 +193,61 @@ export const lessonsPythonData = {
                 "Perfeito! Dividir e testar por partes é o que programadores experientes fazem. Quando algo quebra, você já sabe em qual pedaço procurar.",
         },
     },
+    py11: {
+        title: "Manipulação de Arquivos e TXT",
+        subtitle: "Módulo 11 • Dominando Python",
+        content:
+            "No módulo 8 você viu o básico de arquivos. Agora vamos mais fundo. O segundo argumento do open() é o modo: 'r' lê o arquivo, 'w' escreve apagando tudo o que havia antes, e 'a' (de append) escreve no final, sem apagar nada. Escolher o modo errado é um dos erros mais comuns: abrir com 'w' um arquivo em que você só queria acrescentar uma linha faz todo o conteúdo antigo desaparecer.\n\nPara ler, você pode usar arquivo.read() para pegar o texto todo, ou percorrer o arquivo linha por linha com um loop: for linha in arquivo: print(linha.strip()). O strip() tira o 'enter' do fim de cada linha. E lembre do with: ele fecha o arquivo sozinho, mesmo se acontecer um erro no meio do caminho.",
+        iaInsight:
+            "🤖 Insight de IA: Ao pedir para a IA um código que mexe com arquivos, diga o que não pode ser perdido (por exemplo, 'não apague o conteúdo atual'). Isso evita que ela escolha o modo 'w' e sobrescreva seus dados sem você perceber.",
+        quiz: {
+            question: "Você quer acrescentar uma linha no fim de um arquivo, sem apagar o que já existe. Qual modo usar?",
+            correctId: "C",
+            options: [
+                { id: "A", text: "'w' (write)" },
+                { id: "B", text: "'r' (read)" },
+                { id: "C", text: "'a' (append)" },
+            ],
+            explanation:
+                "Isso mesmo! O modo 'a' (append) acrescenta no final. O 'w' apagaria todo o conteúdo anterior, e o 'r' só permite ler.",
+        },
+    },
+    py12: {
+        title: "Trabalhando com Dados em JSON",
+        subtitle: "Módulo 12 • Dominando Python",
+        content:
+            "JSON é o formato que a internet usa para trocar dados entre sistemas. Ele se parece com um dicionário Python: pares de chave e valor entre chaves, como {'nome': 'Ana', 'idade': 20}. Quase todo app que conversa com um servidor recebe e envia dados nesse formato. (No JSON de verdade, as aspas são sempre duplas.)\n\nEm Python, a biblioteca json faz a tradução. Com import json, o json.dumps(dicionario) transforma um dicionário em texto JSON, e o json.loads(texto) faz o caminho contrário, transformando o texto de volta em dicionário. O 's' de dumps e loads vem de 'string' (texto). Para trabalhar direto com arquivos, existem json.dump() e json.load(), sem o 's' no final.",
+        iaInsight:
+            "🤖 Insight de IA: Quando uma API devolver um JSON gigante, cole um exemplo na IA e peça para ela explicar a estrutura e mostrar como acessar cada campo em Python. Economiza muito tempo de tentativa e erro.",
+        quiz: {
+            question: "O que faz o json.loads(texto) em Python?",
+            correctId: "A",
+            options: [
+                { id: "A", text: "Transforma um texto JSON em um dicionário Python" },
+                { id: "B", text: "Transforma um dicionário Python em texto JSON" },
+                { id: "C", text: "Apaga um arquivo JSON do computador" },
+            ],
+            explanation:
+                "Exatamente! O loads lê um texto JSON e devolve um dicionário. O caminho contrário, de dicionário para texto, é o dumps.",
+        },
+    },
+    py13: {
+        title: "Herança: Reaproveitando Classes",
+        subtitle: "Módulo 13 • Dominando Python",
+        content:
+            "No módulo 9 você criou classes. Agora imagine que seu app tem Aluno e Professor: os dois têm nome e e-mail, mas cada um tem coisas só suas. Em vez de repetir código, usamos a Herança: uma classe filha herda tudo de uma classe mãe e acrescenta o que for só dela.\n\nEm Python, colocamos a classe mãe entre parênteses: class Professor(Pessoa):. O professor passa a ter tudo o que a Pessoa tem. Dentro da filha, super().__init__(nome) chama o início da classe mãe para preparar os dados em comum. Se a filha criar um método com o mesmo nome de um da mãe, o dela é o que vale: isso se chama sobrescrever, e é assim que objetos diferentes respondem do seu jeito à mesma ação.",
+        iaInsight:
+            "🤖 Insight de IA: Antes de criar uma classe filha, pergunte à IA se a relação é mesmo de 'é um' (Professor é uma Pessoa). Quando for só 'tem um' (um Pedido tem um Cliente), costuma ser melhor guardar o objeto dentro do outro, em vez de herdar.",
+        quiz: {
+            question: "Em class Professor(Pessoa):, o que significa o (Pessoa)?",
+            correctId: "B",
+            options: [
+                { id: "A", text: "Professor é uma classe independente, sem relação com Pessoa" },
+                { id: "B", text: "Professor herda tudo o que a classe Pessoa tem" },
+                { id: "C", text: "Pessoa herda tudo o que a classe Professor tem" },
+            ],
+            explanation:
+                "Isso mesmo! A classe entre parênteses é a mãe. Professor herda os atributos e métodos de Pessoa, e ainda pode acrescentar os seus.",
+        },
+    },
 };
