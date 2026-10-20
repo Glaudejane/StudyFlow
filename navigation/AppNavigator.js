@@ -8,6 +8,8 @@ import WeeksScreen from "../screens/WeeksScreen";
 import PythonWeeksScreen from "../screens/PythonWeeksScreen";
 import BuildAppsScreen from "../screens/BuildAppsScreen";
 import WelcomeSetupScreen from "../screens/WelcomeSetupScreen";
+import LoginScreen from "../screens/LoginScreen";
+import { useAuth } from "../context/AuthContext";
 
 // Importação das Telas
 import HomeScreen from "../screens/HomeScreen";
@@ -78,6 +80,9 @@ function TabNavigator() {
 
 // O NAVEGADOR PRINCIPAL GERENCIA O FLUXO GLOBAL
 export default function AppNavigator() {
+    // 🔐 Pergunta ao "guarda" de login: tem alguém logado? Ainda está conferindo?
+    const { sessao, carregando: carregandoLogin } = useAuth();
+
     const [carregando, setCarregando] = useState(true);
     const [nomeSalvo, setNomeSalvo] = useState(null);
 
@@ -96,50 +101,63 @@ export default function AppNavigator() {
         verificarPrimeiraVez();
     }, []);
 
+    // ⏳ Enquanto as duas conferências (nome salvo e login) não terminam, não desenha nada
+    if (carregando || carregandoLogin) {
+        return null;
+    }
+
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-                {!nomeSalvo && <Stack.Screen name="WelcomeSetup" component={WelcomeSetupScreen} />}
-                {/* A primeira tela da pilha são as nossas abas inferiores */}
-                <Stack.Screen name="MainTabs" component={TabNavigator} />
+                {!sessao ? (
+                    // 🚪 Sem login: só existe a tela de Entrar / Criar conta
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                ) : (
+                    // ✅ Com login: tudo o que já existia continua igual
+                    <>
+                            {!nomeSalvo && <Stack.Screen name="WelcomeSetup" component={WelcomeSetupScreen} />}
+                            {/* A primeira tela da pilha são as nossas abas inferiores */}
+                            <Stack.Screen name="MainTabs" component={TabNavigator} />
 
-                {/* A LearnScreen fica no topo da pilha, pronta para ser chamada por qualquer card */}
-                <Stack.Screen
-                    name="Learn"
-                    component={LearnScreen}
-                    options={{
-                        headerShown: true,
-                        title: "Lição Interativa",
-                        headerStyle: { backgroundColor: "#090A1A", borderBottomWidth: 0, shadowOpacity: 0 },
-                        headerTintColor: "#FFF",
-                        headerTitleStyle: { fontWeight: "bold" },
-                    }}
-                />
+                            {/* A LearnScreen fica no topo da pilha, pronta para ser chamada por qualquer card */}
+                            <Stack.Screen
+                                name="Learn"
+                                component={LearnScreen}
+                                options={{
+                                    headerShown: true,
+                                    title: "Lição Interativa",
+                                    headerStyle: { backgroundColor: "#090A1A", borderBottomWidth: 0, shadowOpacity: 0 },
+                                    headerTintColor: "#FFF",
+                                    headerTitleStyle: { fontWeight: "bold" },
+                                }}
+                            />
 
-                <Stack.Screen
-                    name="Weeks"
-                    component={WeeksScreen}
-                    options={{ title: "Cronograma", headerShown: false }}
-                />
+                            <Stack.Screen
+                                name="Weeks"
+                                component={WeeksScreen}
+                                options={{ title: "Cronograma", headerShown: false }}
+                            />
 
-                {/* 👇 ADICIONAMOS A ROTA DE INTELIGÊNCIA ARTIFICIAL AQUI 👇 */}
-                <Stack.Screen
-                    name="AIWeeks"
-                    component={AIWeeksScreen}
-                    options={{ title: "Trilha de IA", headerShown: false }}
-                />
-                {/* 👇 ADICIONAMOS A ROTA DE PYTHON AQUI 👇 */}
-                <Stack.Screen
-                    name="PythonWeeks"
-                    component={PythonWeeksScreen}
-                    options={{ title: "Trilha de Python", headerShown: false }}
-                />
-                {/* 👇 ADICIONAMOS A ROTA DE BUILD APPS AQUI 👇 */}
-                <Stack.Screen
-                    name="BuildApps"
-                    component={BuildAppsScreen}
-                    options={{ title: "Criar Apps Práticos", headerShown: false }}
-                />
+                            {/* 👇 ADICIONAMOS A ROTA DE INTELIGÊNCIA ARTIFICIAL AQUI 👇 */}
+                            <Stack.Screen
+                                name="AIWeeks"
+                                component={AIWeeksScreen}
+                                options={{ title: "Trilha de IA", headerShown: false }}
+                            />
+                            {/* 👇 ADICIONAMOS A ROTA DE PYTHON AQUI 👇 */}
+                            <Stack.Screen
+                                name="PythonWeeks"
+                                component={PythonWeeksScreen}
+                                options={{ title: "Trilha de Python", headerShown: false }}
+                            />
+                            {/* 👇 ADICIONAMOS A ROTA DE BUILD APPS AQUI 👇 */}
+                            <Stack.Screen
+                                name="BuildApps"
+                                component={BuildAppsScreen}
+                                options={{ title: "Criar Apps Práticos", headerShown: false }}
+                            />
+                    </>
+                )}
             </Stack.Navigator>
         </NavigationContainer>
     );
