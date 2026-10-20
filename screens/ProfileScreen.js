@@ -1,11 +1,13 @@
 // screens/ProfileScreen.js
+
+import { supabase } from "../services/supabase";
 import { AVATARES } from "./WelcomeSetupScreen";
 import { semanasIngles } from "./WeeksScreen";
 import { modulosPython } from "./PythonWeeksScreen";
 import { modulosIA } from "./AIWeeksScreen";
 import { projetos } from "./BuildAppsScreen";
 import React, { useState, useCallback } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, Alert } from "react-native";
 import { Feather, FontAwesome5, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -201,6 +203,23 @@ export default function ProfileScreen({ navigation }) {
             console.log("Erro ao carregar dados do perfil:", error);
         }
     }, []);
+
+    const sair = async () => {
+        try {
+            await supabase.auth.signOut();
+            // O nome e o avatar ficam guardados na nuvem; aqui só limpamos a cópia do aparelho
+            await AsyncStorage.multiRemove(["@studyflow:userName", "@studyflow:userAvatar"]);
+        } catch (error) {
+            console.log("Erro ao sair:", error);
+        }
+    };
+
+    const confirmarSair = () => {
+        Alert.alert("Sair da conta", "Tem certeza de que deseja sair?", [
+            { text: "Cancelar", style: "cancel" },
+            { text: "Sair", style: "destructive", onPress: sair },
+        ]);
+    };
     useFocusEffect(
         useCallback(() => {
             loadProfileData();
@@ -379,6 +398,10 @@ export default function ProfileScreen({ navigation }) {
                         </Text>
                     </View>
                 </ScrollView>
+                <TouchableOpacity style={styles.sairButton} onPress={confirmarSair} activeOpacity={0.8}>
+                    <Feather name="log-out" size={16} color="#FF5C5C" />
+                    <Text style={styles.sairText}>Sair da conta</Text>
+                </TouchableOpacity>
             </ScrollView>
 
             <Modal
@@ -777,4 +800,17 @@ const styles = StyleSheet.create({
         borderColor: "#6C5CE7",
     },
     conversarBtnText: { color: "#FFF", fontSize: 11, fontWeight: "bold" },
+    sairButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        marginTop: 24,
+        marginBottom: 40,
+        paddingVertical: 14,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: "#FF5C5C",
+    },
+    sairText: { color: "#FF5C5C", fontSize: 15, fontWeight: "bold" },
 });
