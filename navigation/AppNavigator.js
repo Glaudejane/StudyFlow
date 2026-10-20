@@ -1,3 +1,4 @@
+import { supabase } from "../services/supabase";
 import React, { useState, useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -82,27 +83,63 @@ function TabNavigator() {
 export default function AppNavigator() {
     // 🔐 Pergunta ao "guarda" de login: tem alguém logado? Ainda está conferindo?
     const { sessao, carregando: carregandoLogin } = useAuth();
+    const idUsuario = sessao?.user?.id ?? null;
 
-    const [carregando, setCarregando] = useState(true);
     const [nomeSalvo, setNomeSalvo] = useState(null);
+    const [perfilBuscadoPara, setPerfilBuscadoPara] = useState(null);
 
     useEffect(() => {
-        const verificarPrimeiraVez = async () => {
+        // Sem login: não há perfil para buscar
+        if (!idUsuario) {
+            setNomeSalvo(null);
+            setPerfilBuscadoPara(null);
+            return;
+        }
+
+        let cancelado = false;
+
+        const buscarPerfil = async () => {
             try {
-                const nome = await AsyncStorage.getItem("@studyflow:userName");
-                setNomeSalvo(nome);
-            } catch (error) {
-                console.error("Erro ao verificar nome salvo:", error);
+                const { data, error } = await supabase
+                    .from("perfis")
+                    .select("nome, avatar")
+                    .eq("id", idUsuario)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (data && data.nome) {
+                    // A nuvem manda: guarda uma cópia no aparelho
+                    await AsyncStorage.setItem("@studyflow:userName", data.nome);
+                    if (data.avatar) {
+                        await AsyncStorage.setItem("@studyflow:userAvatar", data.avatar);
+                    }
+                    if (!cancelado) setNomeSalvo(data.nome);
+                } else {
+                    // Conta sem perfil na nuvem: limpa o que sobrou de outra pessoa e pede nome e avatar
+                    await AsyncStorage.multiRemove(["@studyflow:userName", "@studyflow:userAvatar"]);
+                    if (!cancelado) setNomeSalvo(null);
+                }
+            } catch (erro) {
+                // Sem internet ou outro erro: usa o que estiver guardado no aparelho
+                console.log("Erro ao buscar perfil na nuvem:", erro);
+                const nomeLocal = await AsyncStorage.getItem("@studyflow:userName");
+                if (!cancelado) setNomeSalvo(nomeLocal);
             } finally {
-                setCarregando(false);
+                if (!cancelado) setPerfilBuscadoPara(idUsuario);
             }
         };
 
-        verificarPrimeiraVez();
-    }, []);
+        buscarPerfil();
 
-    // ⏳ Enquanto as duas conferências (nome salvo e login) não terminam, não desenha nada
-    if (carregando || carregandoLogin) {
+        return () => {
+            cancelado = true;
+        };
+    }, [idUsuario]);
+
+    // ⏳ Espera: o login carregar e, se houver login, o perfil dessa conta ser buscado
+    const aguardandoPerfil = idUsuario && perfilBuscadoPara !== idUsuario;
+    if (carregandoLogin || aguardandoPerfil) {
         return null;
     }
 

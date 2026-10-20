@@ -1,3 +1,5 @@
+import { supabase } from "../services/supabase";
+import { useAuth } from "../context/AuthContext";
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
 import { MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
@@ -14,6 +16,7 @@ export const AVATARES = [
 ];
 
 export default function WelcomeSetupScreen({ navigation }) {
+    const { sessao } = useAuth();
     const [nome, setNome] = useState("");
     const [avatarSelecionado, setAvatarSelecionado] = useState(null);
 
@@ -21,14 +24,29 @@ export default function WelcomeSetupScreen({ navigation }) {
 
     const salvarContinuar = async () => {
         try {
-            await AsyncStorage.setItem("@studyflow:userName", nome.trim());
-            await AsyncStorage.setItem("@studyflow:userAvatar", avatarSelecionado);
-            navigation.reset({
-                index: 0,
-                routes: [{ name: "MainTabs" }],
-            });
-        } catch (error) {
-            console.log("Erro ao salvar dados de boas-vindas:", error);
+        // 1) Salva na nuvem, ligado à conta de quem está logado
+        const { error } = await supabase.from("perfis").upsert({
+            id: sessao.user.id,
+            nome: nome.trim(),
+            avatar: avatarSelecionado,
+        });
+
+        if (error) {
+            Alert.alert("Não foi possível salvar", "Confira sua internet e tente de novo.");
+            return;
+        }
+
+        // 2) Guarda uma cópia no aparelho
+        await AsyncStorage.setItem("@studyflow:userName", nome.trim());
+        await AsyncStorage.setItem("@studyflow:userAvatar", avatarSelecionado);
+
+        navigation.reset({
+            index: 0,
+            routes: [{ name: "MainTabs" }],
+        });
+    } catch (error) {
+        console.log("Erro ao salvar dados de boas-vindas:", error);
+        Alert.alert("Algo deu errado", "Tente novamente.");
         }
     };
 
