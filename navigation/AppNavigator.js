@@ -18,7 +18,8 @@ import TimerScreen from "../screens/TimerScreen";
 import TaskScreen from "../screens/TaskScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import LearnScreen from "../screens/LearnScreen";
-import AIWeeksScreen from "../screens/AIWeeksScreen"; // Já estava aqui, perfeito!
+import AIWeeksScreen from "../screens/AIWeeksScreen";
+import { sincronizarAoEntrar } from "../services/sincronizacao";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -99,6 +100,13 @@ export default function AppNavigator() {
         let cancelado = false;
 
         const buscarPerfil = async () => {
+            // 🔄 Concilia o progresso do aparelho com o da nuvem (sem travar o app se falhar)
+            try {
+                await sincronizarAoEntrar(idUsuario);
+            } catch (erroSync) {
+                console.log("Não foi possível sincronizar agora:", erroSync);
+            }
+
             try {
                 const { data, error } = await supabase
                     .from("perfis")
@@ -175,19 +183,19 @@ export default function AppNavigator() {
                                 options={{ title: "Cronograma", headerShown: false }}
                             />
 
-                            {/* 👇 ADICIONAMOS A ROTA DE INTELIGÊNCIA ARTIFICIAL AQUI 👇 */}
+                            {/* 👇 ROTA DE INTELIGÊNCIA ARTIFICIAL 👇 */}
                             <Stack.Screen
                                 name="AIWeeks"
                                 component={AIWeeksScreen}
                                 options={{ title: "Trilha de IA", headerShown: false }}
                             />
-                            {/* 👇 ADICIONAMOS A ROTA DE PYTHON AQUI 👇 */}
+                            {/* 👇 ROTA DE PYTHON 👇 */}
                             <Stack.Screen
                                 name="PythonWeeks"
                                 component={PythonWeeksScreen}
                                 options={{ title: "Trilha de Python", headerShown: false }}
                             />
-                            {/* 👇 ADICIONAMOS A ROTA DE BUILD APPS AQUI 👇 */}
+                            {/* 👇 ROTA DE BUILD APPS 👇 */}
                             <Stack.Screen
                                 name="BuildApps"
                                 component={BuildAppsScreen}

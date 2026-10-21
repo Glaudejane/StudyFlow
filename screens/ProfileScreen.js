@@ -7,7 +7,7 @@ import { modulosPython } from "./PythonWeeksScreen";
 import { modulosIA } from "./AIWeeksScreen";
 import { projetos } from "./BuildAppsScreen";
 import React, { useState, useCallback } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, Alert } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, Alert, ActivityIndicator } from "react-native";
 import { Feather, FontAwesome5, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -42,8 +42,6 @@ const MENSAGENS_DO_DIA = [
         frase: "Você está mais perto hoje do que ontem.",
         complemento: "Olhe para trás de vez em quando — o caminho já percorrido importa.",
     },
-
-    
     {
         frase: "Mudar de carreira é um ato de coragem.",
         complemento: "Cada linha de código aprendida hoje constrói o seu novo amanhã."
@@ -136,23 +134,27 @@ const MENSAGENS_DO_DIA = [
         frase: "A jornada de reinvenção é sua e o ritmo também.",
         complemento: "Respeite o seu tempo, mas nunca pare de caminhar."
     }
-
 ];
 
 export default function ProfileScreen({ navigation }) {
-    const [xp, setXp] = useState(725); // Valor padrão até o real ser carregado
+    const [xp, setXp] = useState(725);
     const [streak, setStreak] = useState(1);
     const [modalConquistasVisivel, setModalConquistasVisivel] = useState(false);
+    const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false); // ✏️ Modal de edição
     const [tempoEstudadoFormatado, setTempoEstudadoFormatado] = useState("0h 0m");
     const [nomeUsuario, setNomeUsuario] = useState("Aluno");
-    const [avatarUsuario, setAvatarUsuario] = useState(AVATARES[0]); // Avatar padrão até o real ser carregado
+    const [avatarUsuario, setAvatarUsuario] = useState(AVATARES[0]);
+
+    // Estados temporários para o formulário de edição
+    const [novoNome, setNovoNome] = useState("");
+    const [novoAvatar, setNovoAvatar] = useState(AVATARES[0]);
+    const [salvando, setSalvando] = useState(false);
 
     const level = Math.floor(xp / 100) + 1;
 
-    // 📅 Escolhe uma mensagem diferente a cada dia, de forma previsível
+    // 📅 Escolhe uma mensagem diferente a cada dia
     const diaDoAno = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
     const mensagemDeHoje = MENSAGENS_DO_DIA[diaDoAno % MENSAGENS_DO_DIA.length];
-    // 📊 Quanto de XP já foi ganho DENTRO do nível atual (sempre de 0 a 99)
     const xpNoNivelAtual = xp % 100;
 
     const TOTAL_LICOES = {
@@ -167,12 +169,18 @@ export default function ProfileScreen({ navigation }) {
     const loadProfileData = useCallback(async () => {
         try {
             const nomeGuardado = await AsyncStorage.getItem("@studyflow:userName");
-            if (nomeGuardado) setNomeUsuario(nomeGuardado);
+            if (nomeGuardado) {
+                setNomeUsuario(nomeGuardado);
+                setNovoNome(nomeGuardado);
+            }
 
             const avatarGuardado = await AsyncStorage.getItem("@studyflow:userAvatar");
             if (avatarGuardado) {
                 const avatarEncontrado = AVATARES.find((a) => a.id === avatarGuardado);
-                if (avatarEncontrado) setAvatarUsuario(avatarEncontrado);
+                if (avatarEncontrado) {
+                    setAvatarUsuario(avatarEncontrado);
+                    setNovoAvatar(avatarEncontrado);
+                }
             }
             const savedXp = await AsyncStorage.getItem("@studyflow:xp");
             if (savedXp !== null) setXp(parseInt(savedXp, 10));
@@ -180,7 +188,6 @@ export default function ProfileScreen({ navigation }) {
             const savedStreak = await AsyncStorage.getItem("@studyflow:streak");
             if (savedStreak !== null) setStreak(parseInt(savedStreak, 10));
 
-            // 🏁 Conta quantas trilhas já chegaram a 100%
             const salvasStr = await AsyncStorage.getItem("@studyflow:completedLessons");
             const licoesConcluidas = salvasStr ? JSON.parse(salvasStr) : [];
 
@@ -193,7 +200,6 @@ export default function ProfileScreen({ navigation }) {
             const totalCompletas = trilhas.filter((trilha) => calcularPercentual(trilha) === 100).length;
             setTrilhasConcluidas(totalCompletas);
 
-            // ⏱️ Formata os minutos totais estudados em "Xh Ym"
             const minutosSalvos = await AsyncStorage.getItem("@studyflow:tempoEstudadoMinutos");
             const totalMinutos = minutosSalvos ? parseInt(minutosSalvos, 10) : 0;
             const horas = Math.floor(totalMinutos / 60);
@@ -204,10 +210,53 @@ export default function ProfileScreen({ navigation }) {
         }
     }, []);
 
+    // ✏️ Função para salvar as alterações do Perfil localmente e na nuvem
+    const salvarAlteracoesPerfil = async () => {
+        if (!novoNome.trim()) {
+            Alert.alert("Aviso", "O nome não pode ficar vazio.");
+            return;
+        }
+
+        try {
+            setSalvando(true);
+            const { data: { user } } = await supabase.auth.getUser();
+
+            // 1. Salvar no AsyncStorage
+            await AsyncStorage.setItem("@studyflow:userName", novoNome.trim());
+            await AsyncStorage.setItem("@studyflow:userAvatar", novoAvatar.id);
+
+            // 2. Salvar no Supabase (se houver usuário logado)
+            if (user) {
+                const { error } = await supabase
+                    .from("perfis")
+                    .upsert({
+                        id: user.id,
+                        nome: novoNome.trim(),
+                        avatar: novoAvatar.id,
+                        updated_at: new Date().toISOString(),
+                    });
+
+                if (error) {
+                    console.error("Erro ao atualizar no Supabase:", error);
+                }
+            }
+
+            // Atualiza o estado local da tela
+            setNomeUsuario(novoNome.trim());
+            setAvatarUsuario(novoAvatar);
+            setModalEdicaoVisivel(false);
+            Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
+        } catch (error) {
+            console.log("Erro ao salvar perfil:", error);
+            Alert.alert("Erro", "Não foi possível salvar as alterações.");
+        } finally {
+            setSalvando(false);
+        }
+    };
+
     const sair = async () => {
         try {
             await supabase.auth.signOut();
-            // O nome e o avatar ficam guardados na nuvem; aqui só limpamos a cópia do aparelho
             await AsyncStorage.multiRemove(["@studyflow:userName", "@studyflow:userAvatar"]);
         } catch (error) {
             console.log("Erro ao sair:", error);
@@ -220,6 +269,7 @@ export default function ProfileScreen({ navigation }) {
             { text: "Sair", style: "destructive", onPress: sair },
         ]);
     };
+
     useFocusEffect(
         useCallback(() => {
             loadProfileData();
@@ -229,9 +279,13 @@ export default function ProfileScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {/* 1. TOPO: AVATAR NEON E INFORMAÇÕES */}
+                {/* 1. TOPO: AVATAR NEON E INFORMAÇÕES (Com gatilho para editar) */}
                 <View style={styles.topUserRow}>
-                    <View style={styles.avatarOuterRing}>
+                    <TouchableOpacity
+                        style={styles.avatarOuterRing}
+                        onPress={() => setModalEdicaoVisivel(true)}
+                        activeOpacity={0.8}
+                    >
                         <View style={styles.avatarInnerBg}>
                             {avatarUsuario ? (
                                 avatarUsuario.lib === "material" ? (
@@ -247,13 +301,15 @@ export default function ProfileScreen({ navigation }) {
                                 <FontAwesome5 name="user-astronaut" size={36} color="#6C5CE7" />
                             )}
                         </View>
-                        <TouchableOpacity style={styles.editPencilBadge}>
+                        <View style={styles.editPencilBadge}>
                             <Feather name="edit-2" size={10} color="#FFF" />
-                        </TouchableOpacity>
-                    </View>
+                        </View>
+                    </TouchableOpacity>
 
                     <View style={styles.userMainInfo}>
-                        <Text style={styles.profileUserName}>{nomeUsuario} 👋</Text>
+                        <TouchableOpacity onPress={() => setModalEdicaoVisivel(true)}>
+                            <Text style={styles.profileUserName}>{nomeUsuario} 👋</Text>
+                        </TouchableOpacity>
                         <Text style={styles.profileUserBio}>Construindo sua nova carreira na tecnologia 🚀</Text>
                         <View style={styles.locationRow}>
                             <Ionicons name="location-outline" size={14} color="#8E8EA9" />
@@ -271,7 +327,6 @@ export default function ProfileScreen({ navigation }) {
                 {/* 2. O GRANDE CARD DE NÍVEL (GAMIFICADO) */}
                 <View style={styles.levelMainCard}>
                     <View style={styles.levelCardTop}>
-                        {/* Escudo de Nível em código puro */}
                         <View style={styles.hexagonShield}>
                             <Text style={styles.hexagonSubText}>NÍVEL</Text>
                             <Text style={styles.hexagonMainNumber}>{level}</Text>
@@ -283,13 +338,11 @@ export default function ProfileScreen({ navigation }) {
                             <Text style={styles.xpProgressNumbers}>{xpNoNivelAtual} / 100 XP para o próximo nível</Text>
                         </View>
 
-                        {/* Simulação do Círculo de 82% */}
                         <View style={styles.circularProgressSimulated}>
                             <Text style={styles.circularPercentText}>{xpNoNivelAtual}%</Text>
                         </View>
                     </View>
 
-                    {/* Barra de progresso horizontal roxa */}
                     <View style={styles.horizontalTrackContainer}>
                         <View style={[styles.horizontalBarFill, { width: `${xpNoNivelAtual}%` }]} />
                         <Text style={styles.horizontalPercentLabel}>{xpNoNivelAtual}%</Text>
@@ -335,7 +388,6 @@ export default function ProfileScreen({ navigation }) {
                         <Text style={styles.quadValue}>{trilhasConcluidas}/4</Text>
                         <Text style={styles.quadLabel}>Trilhas concluídas</Text>
                     </View>
-
                     <View style={styles.quadBox}>
                         <Feather name="award" size={18} color="#FFD700" style={styles.quadIcon} />
                         <Text style={styles.quadValue}>Top 18%</Text>
@@ -343,7 +395,7 @@ export default function ProfileScreen({ navigation }) {
                     </View>
                 </View>
 
-                {/* 5. SEÇÃO: CONQUISTAS (MEDALHAS ESTILIZADAS COM CÓDIGO) */}
+                {/* 5. SEÇÃO: CONQUISTAS */}
                 <View style={styles.sectionHeaderRow}>
                     <Text style={styles.sectionMainTitle}>Conquistas</Text>
                     <TouchableOpacity onPress={() => setModalConquistasVisivel(true)}>
@@ -354,56 +406,38 @@ export default function ProfileScreen({ navigation }) {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalBadges}>
                     <View style={[styles.badgeItem, { borderColor: "#FFD700" }]}>
                         <FontAwesome5 name="trophy" size={20} color="#FFD700" />
-                        <Text style={styles.badgeItemName} allowFontScaling={false}>
-                            Primeira{"\n"}semana
-                        </Text>
-                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>
-                            Concluída
-                        </Text>
+                        <Text style={styles.badgeItemName} allowFontScaling={false}>Primeira{"\n"}semana</Text>
+                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>Concluída</Text>
                     </View>
                     <View style={[styles.badgeItem, { borderColor: "#A855F7" }]}>
                         <MaterialCommunityIcons name="bolt" size={22} color="#A855F7" />
-                        <Text style={styles.badgeItemName} allowFontScaling={false}>
-                            10h de foco
-                        </Text>
-                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>
-                            Concluída
-                        </Text>
+                        <Text style={styles.badgeItemName} allowFontScaling={false}>10h de foco</Text>
+                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>Concluída</Text>
                     </View>
                     <View style={[styles.badgeItem, { borderColor: "#3B82F6" }]}>
                         <FontAwesome5 name="brain" size={20} color="#3B82F6" />
-                        <Text style={styles.badgeItemName} allowFontScaling={false}>
-                            Mestre da{"\n"}lógica
-                        </Text>
-                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>
-                            Concluída
-                        </Text>
+                        <Text style={styles.badgeItemName} allowFontScaling={false}>Mestre da{"\n"}lógica</Text>
+                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>Concluída</Text>
                     </View>
                     <View style={[styles.badgeItem, { borderColor: "#FF7A00" }]}>
                         <FontAwesome5 name="rocket" size={18} color="#FF7A00" />
-                        <Text style={styles.badgeItemName} allowFontScaling={false}>
-                            Início em IA
-                        </Text>
-                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>
-                            Concluída
-                        </Text>
+                        <Text style={styles.badgeItemName} allowFontScaling={false}>Início em IA</Text>
+                        <Text style={[styles.badgeStatusText, { color: "#00BA4A" }]} allowFontScaling={false}>Concluída</Text>
                     </View>
                     <View style={[styles.badgeItem, styles.badgeItemLocked]}>
                         <Feather name="lock" size={18} color="#41415C" />
-                        <Text style={[styles.badgeItemName, { color: "#8E8EA9" }]} allowFontScaling={false}>
-                            30 dias de{"\n"}foco
-                        </Text>
-                        <Text style={[styles.badgeStatusText, { color: "#8E8EA9" }]} allowFontScaling={false}>
-                            0 / 30
-                        </Text>
+                        <Text style={[styles.badgeItemName, { color: "#8E8EA9" }]} allowFontScaling={false}>30 dias de{"\n"}foco</Text>
+                        <Text style={[styles.badgeStatusText, { color: "#8E8EA9" }]} allowFontScaling={false}>0 / 30</Text>
                     </View>
                 </ScrollView>
+
                 <TouchableOpacity style={styles.sairButton} onPress={confirmarSair} activeOpacity={0.8}>
                     <Feather name="log-out" size={16} color="#FF5C5C" />
                     <Text style={styles.sairText}>Sair da conta</Text>
                 </TouchableOpacity>
             </ScrollView>
 
+            {/* 🏆 MODAL DE TODAS AS CONQUISTAS */}
             <Modal
                 visible={modalConquistasVisivel}
                 animationType="slide"
@@ -424,9 +458,7 @@ export default function ProfileScreen({ navigation }) {
                                 <FontAwesome5 name="trophy" size={22} color="#FFD700" />
                                 <View style={styles.modalBadgeTexts}>
                                     <Text style={styles.modalBadgeName}>Primeira semana</Text>
-                                    <Text style={styles.modalBadgeDesc}>
-                                        Complete sua primeira semana estudando no app.
-                                    </Text>
+                                    <Text style={styles.modalBadgeDesc}>Complete sua primeira semana estudando no app.</Text>
                                 </View>
                                 <Text style={styles.modalBadgeStatusOk}>✓</Text>
                             </View>
@@ -435,9 +467,7 @@ export default function ProfileScreen({ navigation }) {
                                 <MaterialCommunityIcons name="bolt" size={24} color="#A855F7" />
                                 <View style={styles.modalBadgeTexts}>
                                     <Text style={styles.modalBadgeName}>10h de foco</Text>
-                                    <Text style={styles.modalBadgeDesc}>
-                                        Acumule 10 horas de estudo usando o Timer.
-                                    </Text>
+                                    <Text style={styles.modalBadgeDesc}>Acumule 10 horas de estudo usando o Timer.</Text>
                                 </View>
                                 <Text style={styles.modalBadgeStatusOk}>✓</Text>
                             </View>
@@ -455,9 +485,7 @@ export default function ProfileScreen({ navigation }) {
                                 <FontAwesome5 name="rocket" size={20} color="#FF7A00" />
                                 <View style={styles.modalBadgeTexts}>
                                     <Text style={styles.modalBadgeName}>Início em IA</Text>
-                                    <Text style={styles.modalBadgeDesc}>
-                                        Complete a primeira lição da trilha de IA.
-                                    </Text>
+                                    <Text style={styles.modalBadgeDesc}>Complete a primeira lição da trilha de IA.</Text>
                                 </View>
                                 <Text style={styles.modalBadgeStatusOk}>✓</Text>
                             </View>
@@ -466,9 +494,7 @@ export default function ProfileScreen({ navigation }) {
                                 <Feather name="lock" size={20} color="#8E8EA9" />
                                 <View style={styles.modalBadgeTexts}>
                                     <Text style={[styles.modalBadgeName, { color: "#8E8EA9" }]}>30 dias de foco</Text>
-                                    <Text style={styles.modalBadgeDesc}>
-                                        Estude por 30 dias seguidos sem quebrar a sequência.
-                                    </Text>
+                                    <Text style={styles.modalBadgeDesc}>Estude por 30 dias seguidos sem quebrar a sequência.</Text>
                                 </View>
                                 <Text style={styles.modalBadgeStatusLocked}>0/30</Text>
                             </View>
@@ -476,16 +502,79 @@ export default function ProfileScreen({ navigation }) {
                     </View>
                 </View>
             </Modal>
+
+            {/* ✏️ MODAL DE EDIÇÃO DE NOME E AVATAR */}
+            <Modal
+                visible={modalEdicaoVisivel}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalEdicaoVisivel(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>✏️ Editar Perfil</Text>
+                            <TouchableOpacity onPress={() => setModalEdicaoVisivel(false)}>
+                                <Feather name="x" size={24} color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Text style={styles.labelInput}>Seu Nome:</Text>
+                            <TextInput
+                                style={styles.textInput}
+                                value={novoNome}
+                                onChangeText={setNovoNome}
+                                placeholder="Digite seu nome"
+                                placeholderTextColor="#8E8EA9"
+                            />
+
+                            <Text style={styles.labelInput}>Escolha seu Avatar:</Text>
+                            <View style={styles.gridAvatares}>
+                                {AVATARES.map((item) => {
+                                    const selecionado = novoAvatar.id === item.id;
+                                    return (
+                                        <TouchableOpacity
+                                            key={item.id}
+                                            style={[
+                                                styles.avatarOption,
+                                                selecionado && styles.avatarOptionSelected,
+                                            ]}
+                                            onPress={() => setNovoAvatar(item)}
+                                        >
+                                            {item.lib === "material" ? (
+                                                <MaterialCommunityIcons name={item.icone} size={28} color={item.cor} />
+                                            ) : (
+                                                <FontAwesome5 name={item.icone} size={26} color={item.cor} />
+                                            )}
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.botaoSalvarModal}
+                                onPress={salvarAlteracoesPerfil}
+                                disabled={salvando}
+                            >
+                                {salvando ? (
+                                    <ActivityIndicator color="#FFF" />
+                                ) : (
+                                    <Text style={styles.textoBotaoSalvarModal}>Salvar Alterações</Text>
+                                )}
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
-     
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#090A1A" },
-    scrollContent: { paddingHorizontal: 20, paddingTop: 20 },
+    scrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 },
 
-    // 1. TOPO ESTILIZADO
     topUserRow: { flexDirection: "row", alignItems: "center", marginBottom: 24, gap: 12 },
     avatarOuterRing: {
         width: 76,
@@ -536,7 +625,6 @@ const styles = StyleSheet.create({
     topStreakValue: { color: "#FFF", fontSize: 16, fontWeight: "bold" },
     topStreakLabel: { color: "#8E8EA9", fontSize: 9, textAlign: "center", marginTop: 2 },
 
-    // 2. CARD DO NÍVEL 7
     levelMainCard: {
         backgroundColor: "#15162E",
         borderRadius: 24,
@@ -583,7 +671,7 @@ const styles = StyleSheet.create({
         overflow: "hidden",
     },
     horizontalBarFill: { height: "100%", backgroundColor: "#6C5CE7", borderRadius: 3 },
-    horizontalPercentLabel: { display: "none" }, // Escondido pois já temos o círculo
+    horizontalPercentLabel: { display: "none" },
     continueButton: {
         flexDirection: "row",
         alignItems: "center",
@@ -598,7 +686,6 @@ const styles = StyleSheet.create({
     },
     continueButtonText: { color: "#FFF", fontSize: 13, fontWeight: "600" },
 
-    // 3. MENSAGEM DO DIA
     messageDayCard: {
         backgroundColor: "#15162E",
         borderRadius: 20,
@@ -624,7 +711,6 @@ const styles = StyleSheet.create({
     messageSubBody: { color: "#8E8EA9", fontSize: 11, marginTop: 2 },
     starFloating: { position: "absolute", right: 16, top: 24, opacity: 0.8 },
 
-    // 4. QUAD GRID STYLING
     quadGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 24 },
     quadBox: {
         width: "48.5%",
@@ -638,7 +724,6 @@ const styles = StyleSheet.create({
     quadValue: { color: "#FFF", fontSize: 15, fontWeight: "bold" },
     quadLabel: { color: "#8E8EA9", fontSize: 11, marginTop: 4, lineHeight: 14 },
 
-    // 5. CONQUISTAS SEÇÃO
     sectionHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
     sectionMainTitle: { color: "#FFF", fontSize: 16, fontWeight: "bold" },
     verTodasText: { color: "#A855F7", fontSize: 12, fontWeight: "600" },
@@ -665,6 +750,21 @@ const styles = StyleSheet.create({
         lineHeight: 15,
     },
     badgeStatusText: { fontSize: 14, fontWeight: "bold", marginTop: 4 },
+
+    sairButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        backgroundColor: "#15162E",
+        borderRadius: 14,
+        padding: 14,
+        borderWidth: 1,
+        borderColor: "#221F4D",
+        marginTop: 10,
+    },
+    sairText: { color: "#FF5C5C", fontSize: 14, fontWeight: "600" },
+
     modalOverlay: {
         flex: 1,
         backgroundColor: "rgba(0,0,0,0.6)",
@@ -698,119 +798,46 @@ const styles = StyleSheet.create({
     modalBadgeStatusOk: { color: "#00BA4A", fontSize: 18, fontWeight: "bold" },
     modalBadgeStatusLocked: { color: "#8E8EA9", fontSize: 12, fontWeight: "bold" },
 
-    // 6. MEU FUTURO PROGRESSO
-    objSubText: { color: "#8E8EA9", fontSize: 12, marginTop: -8, marginBottom: 12 },
-    futureContainerCard: {
-        backgroundColor: "#15162E",
-        borderRadius: 20,
-        padding: 16,
-        flexDirection: "row",
-        gap: 14,
-        borderWidth: 1,
-        borderColor: "#221F4D",
-        marginBottom: 16,
-    },
-    skillsLeftColumn: { flex: 1.2, gap: 10 },
-    skillProgressItem: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-    skillLabelText: { color: "#FFF", fontSize: 11, width: 65, fontWeight: "500" },
-    skillTrackBack: {
-        flex: 1,
-        height: 6,
-        backgroundColor: "#221F4D",
-        borderRadius: 3,
-        marginHorizontal: 8,
-        overflow: "hidden",
-    },
-    skillTrackFill: { height: "100%", backgroundColor: "#A855F7", borderRadius: 3 },
-    skillPercentValue: { color: "#8E8EA9", fontSize: 11, fontWeight: "bold", width: 30, textAlign: "right" },
-    trendRightBox: {
-        flex: 0.8,
+    // Estilos do Modal de Edição
+    labelInput: { color: "#8E8EA9", fontSize: 13, marginBottom: 8, marginTop: 12 },
+    textInput: {
         backgroundColor: "#090A1A",
-        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: "#221F4D",
+        borderRadius: 12,
         padding: 12,
-        borderWidth: 1,
-        borderColor: "#221F4D",
-        alignItems: "center",
-        justifyContent: "center",
+        color: "#FFF",
+        fontSize: 15,
     },
-    trendMiniTitle: { color: "#8E8EA9", fontSize: 10, marginTop: 4 },
-    trendValueText: { color: "#00BA4A", fontSize: 18, fontWeight: "bold", marginTop: 2 },
-    trendSubText: { color: "#8E8EA9", fontSize: 9, textAlign: "center", marginTop: 2 },
-    miniChartLineContainer: {
-        width: "100%",
-        height: 10,
-        borderBottomWidth: 1.5,
-        borderColor: "#221F4D",
-        marginTop: 8,
-        position: "relative",
-    },
-    chartLineNode: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: "#00BA4A",
-        position: "absolute",
-        bottom: -3,
-        right: "20%",
-    },
-
-    // 7. CARD COACH IA
-    coachIaCard: {
-        backgroundColor: "#15162E",
-        borderRadius: 20,
-        padding: 14,
+    gridAvatares: {
         flexDirection: "row",
-        alignItems: "center",
+        flexWrap: "wrap",
+        gap: 12,
         justifyContent: "space-between",
-        borderWidth: 1,
+        marginVertical: 10,
+    },
+    avatarOption: {
+        width: 55,
+        height: 55,
+        borderRadius: 28,
+        backgroundColor: "#090A1A",
+        borderWidth: 1.5,
         borderColor: "#221F4D",
-        gap: 8,
-    },
-    coachLeftInfo: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1 },
-    coachAvatarIcon: {
-        width: 36,
-        height: 36,
-        borderRadius: 12,
-        backgroundColor: "#6C5CE7",
         justifyContent: "center",
         alignItems: "center",
     },
-    coachTexts: { flex: 1 },
-    coachBadgeRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-    coachTitleName: { color: "#FFF", fontSize: 14, fontWeight: "bold" },
-    betaBadge: {
-        backgroundColor: "#221F4D",
-        paddingVertical: 2,
-        paddingHorizontal: 6,
-        borderRadius: 6,
-        borderWidth: 1,
-        borderColor: "#A855F7",
-    },
-    betaText: { color: "#A855F7", fontSize: 8, fontWeight: "bold" },
-    coachDescription: { color: "#8E8EA9", fontSize: 11, marginTop: 2, lineHeight: 14 },
-    conversarBtn: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 4,
-        backgroundColor: "#221F4D",
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 12,
-        borderWidth: 1,
+    avatarOptionSelected: {
         borderColor: "#6C5CE7",
+        backgroundColor: "#1E1F3D",
+        borderWidth: 2,
     },
-    conversarBtnText: { color: "#FFF", fontSize: 11, fontWeight: "bold" },
-    sairButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        marginTop: 24,
-        marginBottom: 40,
-        paddingVertical: 14,
+    botaoSalvarModal: {
+        backgroundColor: "#6C5CE7",
         borderRadius: 14,
-        borderWidth: 1,
-        borderColor: "#FF5C5C",
+        padding: 14,
+        alignItems: "center",
+        marginTop: 20,
+        marginBottom: 20,
     },
-    sairText: { color: "#FF5C5C", fontSize: 15, fontWeight: "bold" },
+    textoBotaoSalvarModal: { color: "#FFF", fontSize: 15, fontWeight: "bold" },
 });
