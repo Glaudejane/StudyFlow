@@ -163,17 +163,32 @@ async function idDoUsuarioLogado() {
     return data.session?.user?.id ?? null;
 }
 
-// Envia o XP atual para a nuvem (se falhar, só avisa no terminal e o app segue normal)
+// Envia o XP atual para a nuvem. Só grava se for MAIOR que o que já está lá,
+// assim um aparelho desatualizado nunca diminui o progresso.
 export async function enviarXp(xp) {
     try {
         const id = await idDoUsuarioLogado();
-        console.log("☁️ enviarXp chamada. XP:", xp, "| usuário:", id);
         if (!id) return;
-        const { data, error } = await supabase.from("perfis").update({ xp }).eq("id", id).select();
-        console.log("☁️ enviarXp resultado:", { linhasAtualizadas: data?.length, error });
+        const { error } = await supabase.from("perfis").update({ xp }).eq("id", id).lt("xp", xp);
         if (error) throw error;
     } catch (erro) {
         console.log("Não foi possível enviar o XP agora:", erro);
+    }
+}
+
+// Envia o total de minutos estudados (mesma regra: só sobe)
+export async function enviarMinutos(minutos) {
+    try {
+        const id = await idDoUsuarioLogado();
+        if (!id) return;
+        const { error } = await supabase
+            .from("perfis")
+            .update({ minutos_estudados: minutos })
+            .eq("id", id)
+            .lt("minutos_estudados", minutos);
+        if (error) throw error;
+    } catch (erro) {
+        console.log("Não foi possível enviar os minutos agora:", erro);
     }
 }
 
@@ -212,14 +227,3 @@ export async function enviarSequencia(streak, ultimoDiaTexto) {
     }
 }
 
-// Envia o total de minutos estudados
-export async function enviarMinutos(minutos) {
-    try {
-        const id = await idDoUsuarioLogado();
-        if (!id) return;
-        const { error } = await supabase.from("perfis").update({ minutos_estudados: minutos }).eq("id", id);
-        if (error) throw error;
-    } catch (erro) {
-        console.log("Não foi possível enviar os minutos agora:", erro);
-    }
-}

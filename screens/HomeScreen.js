@@ -1,3 +1,4 @@
+import { enviarSequencia } from "../services/sincronizacao";
 import { semanasIngles } from "./WeeksScreen";
 import { modulosPython } from "./PythonWeeksScreen";
 import { modulosIA } from "./AIWeeksScreen";
@@ -80,6 +81,7 @@ export default function HomeScreen({ navigation }) {
 
                 await AsyncStorage.setItem(STREAK_KEY, novoStreak.toString());
                 await AsyncStorage.setItem(LAST_ACTIVE_KEY, hojeStr);
+                enviarSequencia(novoStreak, hojeStr); // 👈 ÚNICA LINHA NOVA
             }
 
             setStreak(novoStreak || 1);

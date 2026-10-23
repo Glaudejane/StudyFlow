@@ -1,3 +1,4 @@
+import { enviarMinutos } from "../services/sincronizacao";
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Modal } from "react-native";
 import { useAudioPlayer } from "expo-audio";
@@ -55,6 +56,7 @@ export default function TimerScreen({ navigation }) {
             const totalAtual = minutosSalvos ? parseInt(minutosSalvos, 10) : 0;
             const novoTotal = totalAtual + focoMinutos; // cada bloco de foco vale 25 minutos
             await AsyncStorage.setItem("@studyflow:tempoEstudadoMinutos", novoTotal.toString());
+            enviarMinutos(novoTotal); // 👈 ÚNICA LINHA NOVA
         } catch (error) {
             console.log("Erro ao salvar tempo estudado:", error);
         }
