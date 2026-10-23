@@ -1,3 +1,4 @@
+import { enviarXp, enviarLicaoConcluida } from "../services/sincronizacao";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -72,6 +73,8 @@ export default function LearnScreen({ route, navigation }) {
               let currentXP = currentXPValue ? parseInt(currentXPValue, 10) : 0;
               const newXP = currentXP + 50;
               await AsyncStorage.setItem("@studyflow:xp", newXP.toString());
+              enviarXp(newXP); // 👈 ÚNICA LINHA NOVA
+
 
               // 🏁 Marca ESSA lição específica como concluída (ex: "Python:py1")
               const idDaLicao = `${tipoTrilha}:${tipoTrilha === "Ingles" ? weekId : moduloId}`;
@@ -81,6 +84,11 @@ export default function LearnScreen({ route, navigation }) {
               if (!licoesConcluidas.includes(idDaLicao)) {
                   licoesConcluidas.push(idDaLicao);
                   await AsyncStorage.setItem("@studyflow:completedLessons", JSON.stringify(licoesConcluidas));
+              }
+              if (!licoesConcluidas.includes(idDaLicao)) {
+                  licoesConcluidas.push(idDaLicao);
+                  await AsyncStorage.setItem("@studyflow:completedLessons", JSON.stringify(licoesConcluidas));
+                  enviarLicaoConcluida(idDaLicao); // 👈 NOVA: registra a lição na nuvem
               }
 
               Alert.alert("🎉 Parabéns!", "Você acertou e ganhou +50 XP!");

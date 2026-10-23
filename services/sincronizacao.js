@@ -156,3 +156,70 @@ export async function sincronizarAoEntrar(idUsuario) {
 
     console.log("🔄 Sincronizado:", { xp, streak, minutos, licoes: idsLicoes.size });
 }
+
+// Pergunta ao Supabase quem está logado (usa o login guardado no aparelho, sem internet)
+async function idDoUsuarioLogado() {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.user?.id ?? null;
+}
+
+// Envia o XP atual para a nuvem (se falhar, só avisa no terminal e o app segue normal)
+export async function enviarXp(xp) {
+    try {
+        const id = await idDoUsuarioLogado();
+        console.log("☁️ enviarXp chamada. XP:", xp, "| usuário:", id);
+        if (!id) return;
+        const { data, error } = await supabase.from("perfis").update({ xp }).eq("id", id).select();
+        console.log("☁️ enviarXp resultado:", { linhasAtualizadas: data?.length, error });
+        if (error) throw error;
+    } catch (erro) {
+        console.log("Não foi possível enviar o XP agora:", erro);
+    }
+}
+
+// Registra uma lição concluída, no formato "Trilha:modulo" (ex: "Python:py11")
+export async function enviarLicaoConcluida(idDaLicao) {
+    try {
+        const id = await idDoUsuarioLogado();
+        if (!id) return;
+        const posicao = idDaLicao.indexOf(":");
+        const { error } = await supabase.from("licoes_concluidas").upsert(
+            {
+                usuario_id: id,
+                trilha: idDaLicao.slice(0, posicao),
+                modulo: idDaLicao.slice(posicao + 1),
+            },
+            { onConflict: "usuario_id,trilha,modulo", ignoreDuplicates: true },
+        );
+        if (error) throw error;
+    } catch (erro) {
+        console.log("Não foi possível enviar a lição concluída agora:", erro);
+    }
+}
+
+// Envia a sequência de dias e o último dia de uso (o dia vem como "Tue Jul 28 2026")
+export async function enviarSequencia(streak, ultimoDiaTexto) {
+    try {
+        const id = await idDoUsuarioLogado();
+        if (!id) return;
+        const { error } = await supabase
+            .from("perfis")
+            .update({ streak, ultimo_dia_ativo: dataParaBanco(ultimoDiaTexto) })
+            .eq("id", id);
+        if (error) throw error;
+    } catch (erro) {
+        console.log("Não foi possível enviar a sequência agora:", erro);
+    }
+}
+
+// Envia o total de minutos estudados
+export async function enviarMinutos(minutos) {
+    try {
+        const id = await idDoUsuarioLogado();
+        if (!id) return;
+        const { error } = await supabase.from("perfis").update({ minutos_estudados: minutos }).eq("id", id);
+        if (error) throw error;
+    } catch (erro) {
+        console.log("Não foi possível enviar os minutos agora:", erro);
+    }
+}
