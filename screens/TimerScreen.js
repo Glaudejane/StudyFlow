@@ -38,7 +38,7 @@ export default function TimerScreen({ navigation }) {
                 setFocoMinutos(focoCarregado);
                 setPausaMinutos(pausaCarregada);
                 setSecondsLeft(focoCarregado * 60);
-                setSecondsLeft(5);
+
             } catch (error) {
                 console.log("Erro ao carregar configuracoes do timer:", error);
             }
